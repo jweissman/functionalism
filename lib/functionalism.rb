@@ -39,16 +39,13 @@ class Proc
   def memoize
     ->(*as) do
       @results ||= {}
-      @results[as] ||= call(*as) 
+      @results[as] ||= call(*as)
     end
   end
+  alias_method :~, :memoize
 
   protected
   def identity
     ->(x) { x }
-  end
-
-  def constant(value)
-    ->(*) { value }
   end
 end
