@@ -2,7 +2,7 @@
 
 * [Email](mailto:jweissman1986 at gmail.com)
 
-[![Code Climate GPA](https://codeclimate.com/github//functionalism/badges/gpa.svg)](https://codeclimate.com/github//functionalism)
+[![Code Climate GPA](https://codeclimate.com/github/jweissman/functionalism/badges/gpa.svg)](https://codeclimate.com/github/jweissman/functionalism)
 
 ## Description
 
