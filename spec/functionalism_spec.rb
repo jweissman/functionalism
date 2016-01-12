@@ -90,7 +90,7 @@ context '.sum' do
   it 'should compute the sum of two functions' do
     expect( f.sum(g).call(value) ).to eq(25)
     expect( f.sum(g).call(value) ).to eq( f.call(value) + g.call(value) )
-  end 
+  end
 
   it 'should provide an operator (+) to shorthand function summation' do
     expect( ( f + g ).call(value) ).to eq( 25 )
@@ -106,7 +106,7 @@ context '.product' do
   it 'should generate the product of two functions' do
     expect( f.product(g).call(value) ).to eq( 81000 )
     expect( f.product(g).call(value) ).to eq( f.call(value) * g.call(value)   )
-  end 
+  end
 
   it 'should provide an operator (*) to shorthand function products' do
     expect( ( f * g ).call(value) ).to eq( 81000 )
@@ -121,12 +121,33 @@ context '.exponentiate' do
     expect( f.exponentiate(2).call(value) ).to eq( 36 )
     expect( f.exponentiate(2).call(value) ).to eq( (f * f).call(value) )
   end
-  
+
   it 'should provide an operation (**) to shorthand n-fold product' do
     expect( (f ** 0).call(value) ).to eq(value)
     expect( (f ** 1).call(value) ).to eq( f.call(value) )
     expect( (f ** 2).call(value) ).to eq( (f * f).call(value) )
     expect( (f ** 3).call(value) ).to eq( (f * f * f).call(value) )
     expect( (f ** 4).call(value) ).to eq( (f * f * f * f).call(value) )
+  end
+end
+
+context '.memoize' do
+  let(:f) { -> { rand }}
+  let(:f_memo) { f.memoize }
+
+  let(:g) { ->(x) { x * 2 }}
+  let(:g_memo) { g.memoize }
+
+  it 'should always produce the same value for a nullary function' do
+    expect(f_memo.call).to eq(f_memo.call)
+    expect(f_memo.call).to eq(f_memo.call)
+  end
+
+  it 'should produce the originally-computed values for a function of a single var' do
+    expect(g_memo.call(3)).to eq(6)
+    expect(g_memo.call(3)).to eq(g_memo.call(3))
+
+    expect(g_memo.call(4)).to eq(8)
+    expect(g_memo.call(4)).to eq(g_memo.call(4))
   end
 end

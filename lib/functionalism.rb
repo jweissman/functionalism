@@ -36,8 +36,19 @@ class Proc
   end
   alias_method :**, :exponentiate
 
+  def memoize
+    ->(*as) do
+      @results ||= {}
+      @results[as] ||= call(*as) 
+    end
+  end
+
   protected
   def identity
     ->(x) { x }
+  end
+
+  def constant(value)
+    ->(*) { value }
   end
 end
