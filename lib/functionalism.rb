@@ -1,8 +1,38 @@
 require 'functionalism/version'
 
+module Functionalism
+  Identity = ->(x) { x }
+
+  Compose  = ->(*xs) do
+    ps = xs.map(&:to_proc)
+
+    if ps.empty?
+      Identity
+    else
+      ps.inject(&:compose)
+    end
+  end
+
+  Splat = ->(*xs) do
+    ps = xs.map(&:to_proc)
+    ->(*ys) { ps.map { |p| p[*ys] } }
+  end
+
+  All = ->(*xs) do
+    ps = xs.map(&:to_proc)
+    ->(*ys) { ps.all? { |p| p[*ys] }}
+  end
+
+  Any = ->(*xs) do
+    ps = xs.map(&:to_proc)
+    ->(*ys) { ps.any? { |p| p[*ys] }}
+  end
+end
+
 class Proc
   def compose(other_fn)
-    ->(*as) { other_fn.call(self.call(*as)) }
+    other_fn = other_fn.to_proc if other_fn.is_a?(Symbol)
+    ->(*args) { other_fn[self[*args]] }
   end
   alias_method :|, :compose
 
@@ -17,12 +47,12 @@ class Proc
   alias_method :^, :functional_power
 
   def sum(g)
-    ->(*as) { call(*as) + g.call(*as) }
+    ->(*args) { self[*args] + g[*args] }
   end
   alias_method :+, :sum
 
   def product(g)
-    ->(*as) { call(*as) * g.call(*as) }
+    ->(*args) { self[*args] * g[*args] }
   end
   alias_method :*, :product
 
@@ -37,12 +67,17 @@ class Proc
   alias_method :**, :exponentiate
 
   def memoize
-    ->(*as) do
+    ->(*args) do
       @results ||= {}
-      @results[as] ||= call(*as)
+      @results[args] ||= self[*args]
     end
   end
   alias_method :~, :memoize
+
+  def apply_to_all(arr)
+    arr.map(&self)
+  end
+  alias_method :%, :apply_to_all
 
   protected
   def identity

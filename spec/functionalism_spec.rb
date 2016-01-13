@@ -1,6 +1,43 @@
 require 'spec_helper'
 require 'functionalism'
 
+describe Functionalism do
+  describe Identity do
+    it 'should be the id function' do
+      expect(Identity.(1)).to eq(1)
+      expect(Identity.('foo')).to eq('foo')
+    end
+  end
+
+  describe Compose do
+    it 'should compose procs/symbols' do
+      expect(Compose[:upcase,:reverse].('hello')).to eq("OLLEH")
+      expect(Compose[->(x) {x*2}, ->(x) {x**3}].(4)).to eq(512)
+    end
+  end
+
+  describe Splat do
+    it 'should fan-out' do
+      expect(Splat[:upcase,:reverse,:capitalize].('hello')).to eq(["HELLO", "olleh", "Hello"])
+      expect(Splat[->(x) { x*2}, ->(x) { x**3 }].(5)).to eq([10, 125])
+    end
+  end
+
+  describe All do
+    it 'should produce a proc evaluable to true when all encapsulated procs are true' do
+      expect(All[:integer?,:even?].(2)).to be_truthy
+      expect(All[:integer?,:even?].(3)).to be_falsy
+    end
+  end
+
+  describe Any do
+    it 'should produce a proc evaluable to true when any encapsulated procs are true' do
+      expect(Any[:zero?,:odd?].(1)).to be_truthy
+      expect(Any[:zero?,:odd?].(2)).to be_falsy
+    end
+  end
+end
+
 describe Proc do
   describe ".compose" do
     context 'with pure functions of a single integer variable' do
@@ -10,20 +47,20 @@ describe Proc do
       let(:value) { 10 }
 
       it 'should be able to compose a function with itself' do
-        expect(f.compose(f).call(value)).to eq(value * 2 * 2)
-        expect(f.compose(f).compose(f).call(value)).to eq(value * 2 * 2 * 2)
+        expect(f.compose(f).(value)).to eq(value * 2 * 2)
+        expect(f.compose(f).compose(f).(value)).to eq(value * 2 * 2 * 2)
       end
 
       it 'should produce functions composed of two different functions' do
-        expect(f.compose(g).call(value)).to eq((value * 2) ** 3)
-        expect(g.compose(f).call(value)).to eq((value ** 3) * 2)
+        expect(f.compose(g).(value)).to eq((value * 2) ** 3)
+        expect(g.compose(f).(value)).to eq((value ** 3) * 2)
 
-        expect(g.compose(f).call(value)).to eq(f.call(g.call(value)))
+        expect(g.compose(f).(value)).to eq(f.(g.(value)))
       end
 
       it 'should have a binary operator (|)' do
         expect(
-          (f | g).call(value)
+          (f | g).(value)
         ).to eq(
         (value * 2) ** 3
         )
@@ -33,34 +70,34 @@ describe Proc do
         let(:h) { ->(x) {  x / 5 } }
 
         it 'should work' do
-          expect( f.compose(g).compose(h).call(value) ).to eq(1600)
+          expect( f.compose(g).compose(h).(value) ).to eq(1600)
         end
 
         it 'should be associative' do
           expect(
-            f.compose(g).compose(h).call(value)
+            f.compose(g).compose(h).(value)
           ).to eq(
-          f.compose(g.compose(h)).call(value)
+          f.compose(g.compose(h)).(value)
           )
         end
 
         it 'should be associative with binary operators' do
           expect(
-            (( f | g ) | h).call value
+            (( f | g ) | h)[value]
           ).to eq(
-          ( f | ( g | h )).call value
+          ( f | ( g | h ))[value]
           )
         end
 
         it 'should compose a function with itself multiple times' do
-          expect( (f.functional_power(3)).call(value) ).to eql( (f | f | f).call(value) )
+          expect( (f.functional_power(3)).(value) ).to eql( (f | f | f).(value) )
         end
 
         it 'should provide an operator (^) to shorthand functional powers' do
-          expect( (f ^ 0).call(value) ).to eql( value )
-          expect( (f ^ 1).call(value) ).to eql( (f).call(value) )
-          expect( (f ^ 2).call(value) ).to eql( (f | f).call(value) )
-          expect( (f ^ 3).call(value) ).to eql( (f | f | f).call(value) )
+          expect( (f ^ 0).(value) ).to eql( value )
+          expect( (f ^ 1).(value) ).to eql( (f).(value) )
+          expect( (f ^ 2).(value) ).to eql( (f | f).(value) )
+          expect( (f ^ 3).(value) ).to eql( (f | f | f).(value) )
         end
       end
     end
@@ -72,12 +109,17 @@ describe Proc do
 
       it 'should compose two functions' do
         expect(self).to receive(:gets).and_return('foo')
-        expect { (inp | out).call }.to output("foo").to_stdout
+        expect { (inp | out)[] }.to output("foo").to_stdout
       end
 
       it 'should compose three functions' do
         expect(self).to receive(:gets).and_return('bar')
-        expect { (inp | cap | out).call }.to output("Bar").to_stdout
+        expect { (inp | cap | out)[] }.to output("Bar").to_stdout
+      end
+
+      it 'should compose procs and symbols (converting implicitly to procs)' do
+        expect(self).to receive(:gets).and_return('quux')
+        expect { (inp | :upcase | out)[] }.to output("QUUX").to_stdout
       end
     end
   end
@@ -89,12 +131,12 @@ describe Proc do
     let(:value) { 4 }
 
     it 'should compute the sum of two functions' do
-      expect( f.sum(g).call(value) ).to eq(25)
-      expect( f.sum(g).call(value) ).to eq( f.call(value) + g.call(value) )
+      expect( f.sum(g).(value) ).to eq(25)
+      expect( f.sum(g).(value) ).to eq( f.(value) + g.(value) )
     end
 
     it 'should provide an operator (+) to shorthand function summation' do
-      expect( ( f + g ).call(value) ).to eq( 25 )
+      expect( ( f + g ).(value) ).to eq( 25 )
     end
   end
 
@@ -105,12 +147,12 @@ describe Proc do
     let(:value) { 30 }
 
     it 'should generate the product of two functions' do
-      expect( f.product(g).call(value) ).to eq( 81000 )
-      expect( f.product(g).call(value) ).to eq( f.call(value) * g.call(value)   )
+      expect( f.product(g).(value) ).to eq( 81000 )
+      expect( f.product(g).(value) ).to eq( f.(value) * g.(value)   )
     end
 
     it 'should provide an operator (*) to shorthand function products' do
-      expect( ( f * g ).call(value) ).to eq( 81000 )
+      expect( ( f * g ).(value) ).to eq( 81000 )
     end
   end
 
@@ -119,16 +161,16 @@ describe Proc do
     let(:value) { 3 }
 
     it 'should generate the n-fold product of itself' do
-      expect( f.exponentiate(2).call(value) ).to eq( 36 )
-      expect( f.exponentiate(2).call(value) ).to eq( (f * f).call(value) )
+      expect( f.exponentiate(2).(value) ).to eq( 36 )
+      expect( f.exponentiate(2).(value) ).to eq( (f * f).(value) )
     end
 
     it 'should provide an operation (**) to shorthand n-fold product' do
-      expect( (f ** 0).call(value) ).to eq(value)
-      expect( (f ** 1).call(value) ).to eq( f.call(value) )
-      expect( (f ** 2).call(value) ).to eq( (f * f).call(value) )
-      expect( (f ** 3).call(value) ).to eq( (f * f * f).call(value) )
-      expect( (f ** 4).call(value) ).to eq( (f * f * f * f).call(value) )
+      expect( (f ** 0).(value) ).to eq(value)
+      expect( (f ** 1).(value) ).to eq( f.(value) )
+      expect( (f ** 2).(value) ).to eq( (f * f).(value) )
+      expect( (f ** 3).(value) ).to eq( (f * f * f).(value) )
+      expect( (f ** 4).(value) ).to eq( (f * f * f * f).(value) )
     end
   end
 
@@ -152,24 +194,24 @@ describe Proc do
 
     context 'a nullary function' do
       it 'should always produce the same value' do
-        expect(f_memo.call).to eq(f_memo.call)
+        expect(f_memo[]).to eq(f_memo[])
         expect(@f_called).to eq(1)
       end
     end
 
     context 'functions of a single variable' do
       it 'should produce precomputed values for a pure fn' do
-        expect(g_memo.call(3)).to eq(6)
-        expect(g_memo.call(3)).to eq(g_memo.call(3))
+        expect(g_memo.(3)).to eq(6)
+        expect(g_memo.(3)).to eq(g_memo.(3))
 
-        expect(g_memo.call(4)).to eq(8)
-        expect(g_memo.call(4)).to eq(g_memo.call(4))
+        expect(g_memo.(4)).to eq(8)
+        expect(g_memo.(4)).to eq(g_memo.(4))
 
         expect(@g_called).to eq(2)
       end
 
       it 'should produce precomputed values for an impure fn' do
-        expect(h_memo.call(1234)).to eq(h_memo.call(1234))
+        expect(h_memo.(1234)).to eq(h_memo.(1234))
         expect(@h_called).to eq(1)
       end
     end
@@ -178,12 +220,25 @@ describe Proc do
       let(:cached_pipeline) { ~(f|g|h) }
 
       it 'should produce precomputed values' do
-        expect(cached_pipeline.call).to eq(cached_pipeline.call)
+        expect(cached_pipeline[]).to eq(cached_pipeline[])
 
         expect(@f_called).to eq(1)
         expect(@g_called).to eq(1)
         expect(@h_called).to eq(1)
       end
+    end
+  end
+
+  context '.apply_to_all' do
+    let(:f) { ->(x) { x * 2 }}
+    let(:g) { ->(x) { x ** 3 }}
+
+    it 'should map the proc over the array' do
+      expect( f.apply_to_all([1,2]) ).to eq([2,4])
+    end
+
+    it 'should provide a shorthand (%) for apply_to_all' do
+      expect( ~(f|g) % [3,6,9] ).to eq( [ 216, 1728, 5832 ] )
     end
   end
 end
