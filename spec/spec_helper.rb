@@ -1,4 +1,4 @@
 require 'rspec'
-require 'functionalism/version'
+require 'functionalism'
 
 include Functionalism
