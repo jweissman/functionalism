@@ -6,14 +6,12 @@
 
 ## Description
 
-Provides for symbol and proc-based functional composition with |.
+Provides for symbol and proc-based functional composition with `|`.
 
 ## Features
 
-  - Compose procs and symbols with `.compose` (aliased to `|`)
-  - Compose a proc with itself 'n' times with ^: `any_proc ^ n # any_proc | any_proc | any_proc ...`
-  - Gives `Proc` a few arithmetic-oriented operations for good measure (+ and * for function sum and product)
-  - Get curried procs from symbols with `:join.(' ')`
+  - Give procs superpowers, like composition of procs (and symbols, see below) with `.compose` (aliased to `|`)
+  - Other things like symbols get some powers too, like curried procs from symbols with `:join.(' ')`
 
 ## Augmentations
 
@@ -23,13 +21,17 @@ Here is a full list of the super-powers `Proc` and friends will have after inclu
 
   - Compose procs with `|` (this is chainable, chaining is associative)
   - Compose a proc with itself 'n' times with ^: `any_proc ^ n # any_proc | any_proc | any_proc ...`
+  - Arithmetic sum, product and exponents of a proc with `+`, `*` and `**`
+  - Memoize a proc with `~`
+  - Apply a proc to every element of an array with `%`
+  - Negate a proc with unary `-`
 
 ### Symbol
 
   - Automatic `#to_proc` conversion in a compositional pipeline: `:upcase | :reverse`
   - Curry with `#call` like `:split.(' ')` (courtesy of [this approach from StackOverflow](http://stackoverflow.com/questions/23695653/can-you-supply-arguments-to-the-mapmethod-syntax-in-ruby))
   - `#each` to map the `proc`-ified symbol: `:split.(' ') | :capitalize.each | :reverse`
-  - `#element` to build a proc calling the method with the args (`#elements` for a proc to call the message once for *each* argument)
+  - `#elements` for a proc to call a message once for *each* argument
 
 ## Examples
 

@@ -42,13 +42,23 @@ class Proc
   end
   alias_method :~, :memoize
 
-  def apply_to_all(arr)
-    arr.map(&self)
-  end
-  alias_method :%, :apply_to_all
-
   def negate
     ->(*args) { !self[*args] }
   end
   alias_method :-@, :negate
+
+  def map(arr)
+    arr.map(&self)
+  end
+  alias_method :%, :map
+
+  def filter(arr)
+    arr.select(&self)
+  end
+  alias_method :&, :filter
+
+  def fold(arr)
+    arr.inject(&self)
+  end
+  alias_method :<<, :fold
 end

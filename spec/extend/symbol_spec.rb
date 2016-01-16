@@ -21,21 +21,15 @@ describe Symbol do
     end
   end
 
-  describe "#call" do
-    it 'is a shorthand for currying' do
-      expect(:+.(1).(2)).to eq(3)
-    end
-  end
-
-  describe "#element" do
-    it 'is a shorthand for building a proc to call a method *with* the args' do
-      expect{(:capitalize | :print.element).('baz')}.to output('Baz').to_stdout
-    end
-  end
-
   describe "#elements" do
     it 'is a shorthand for building a proc to call a method with *each* of the args' do
       expect{(:split.(' ') | :capitalize.each | :reverse | :print.elements).('bar baz')}.to output('BazBar').to_stdout
+    end
+  end
+
+  describe "#call" do
+    it 'is a shorthand for currying' do
+      expect(:+.(1).(2)).to eq(3)
     end
   end
 end

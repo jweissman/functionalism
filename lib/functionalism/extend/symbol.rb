@@ -1,24 +1,24 @@
 class Symbol
   extend Forwardable
-  def_delegators :to_proc, :|
+  def_delegators :to_proc, :|, :-@
+  
+  def as_method
+    binding.of_caller(1).eval "method(:#{self}).to_proc"
+  end
 
+  def as_method_of(klass)
+    klass.method(self).to_proc
+  end
+  
   def each
-    return to_proc.method(:apply_to_all).to_proc
+    to_proc.method(:map).to_proc
+  end
+
+  def elements
+    as_method.method(:map)
   end
 
   def call(*args, &block)
     ->(caller, *rest) { caller.send(self, *rest, *args, &block) }
-  end
-
-  def element
-    ->(*as) { send(self, *as) }
-  end
-
-  def elements
-    lambda do |args|
-      args.each do |arg|
-        send(self, arg)
-      end
-    end
   end
 end

@@ -191,15 +191,15 @@ describe Proc do
     end
   end
 
-  context '.apply_to_all' do
+  context '.map' do
     let(:f) { ->(x) { x * 2 }}
     let(:g) { ->(x) { x ** 3 }}
 
     it 'should map the proc over the array' do
-      expect( f.apply_to_all([1,2]) ).to eq([2,4])
+      expect( f.map([1,2]) ).to eq([2,4])
     end
 
-    it 'should provide a shorthand (%) for apply_to_all' do
+    it 'should provide a shorthand (%) for map' do
       expect( ~(f|g) % [3,6,9] ).to eq( [ 216, 1728, 5832 ] )
     end
   end
@@ -221,5 +221,28 @@ describe Proc do
       expect((-greater_than_four).(3)).to be_truthy
     end
   end
-end
 
+  context '.filter' do
+    let(:greater_than_four) { ->(x) { x > 4 }}
+
+    it 'should use itself as a selector over the array' do
+      expect(greater_than_four.filter([2,3,5,9])).to eq([5,9])
+    end
+
+    it 'should provide a shorthand (binary &) for filter' do
+      expect(greater_than_four & [2,3,9,12]).to eq([9,12])
+    end
+  end
+
+  context '.fold' do
+    let(:f)  { :+.to_proc }
+
+    it 'should inject' do
+      expect( f.fold([2,3]) ).to eq(5)
+    end
+
+    it 'should have a shorthand (<<)' do
+      expect( f << [2,3,4] ).to eq(9)
+    end
+  end
+end
