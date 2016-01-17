@@ -61,26 +61,17 @@ module Functionalism
     collection.reverse
   end
 
-  Fold = lambda do |f|
-    lambda do |i|
-      lambda do |collection|
-        return i if collection.empty?
-        x, xs = First[collection], Rest[collection]
-        Fold[f][ f.to_proc.(i, x) ][xs]
-      end
-    end
-  end
+  Fold = lambda do |f,i,collection|
+    return i if collection.empty?
+    x, xs = First[collection], Rest[collection]
+    Fold[f, f.to_proc.(i, x), xs]
+  end.curry
+
   Foldr  = Fold
   Inject = Fold
   Reduce = Fold
 
-  Foldl = lambda do |f|
-    lambda do |i|
-      lambda do |collection|
-        Foldr[f][i][Reverse[collection]]
-      end
-    end
-  end
+  Foldl = ->(f,i,collection) { Foldr[f,i,Reverse[collection]] }.curry
 
   Map  = ->(f) { Foldl[ConsWith[f]].([]) }
   Mapr = ->(f) {  Fold[ConsWith[f]].([]) }

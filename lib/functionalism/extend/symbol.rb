@@ -1,7 +1,6 @@
 class Symbol
   extend Forwardable
   def_delegators :to_proc, :|, :-@, :each
-  
   def as_method
     binding.of_caller(1).eval "method(:#{self}).to_proc"
   end
