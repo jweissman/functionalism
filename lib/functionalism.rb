@@ -77,9 +77,7 @@ module Functionalism
   Foldl = lambda do |f|
     lambda do |i|
       lambda do |collection|
-        return i if collection.empty?
-        x, xs = First[Reverse[collection]], Reverse[Rest[Reverse[collection]]]
-        Foldl[f][ f.to_proc.(i, x) ][xs]
+        Foldr[f][i][Reverse[collection]]
       end
     end
   end
