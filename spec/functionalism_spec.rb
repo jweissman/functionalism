@@ -9,12 +9,16 @@ describe Functionalism do
 
   describe "Cons" do
     it 'assembles lists' do
-      expect(Cons[1, Cons[2,3]]).to eq([1,2,3])
+      aggregate_failures 'constructing lists' do
+        expect(Cons[Cons[3,2], 1]).to eq([1,2,3])
+        expect(Cons[Cons[[[3]],[2]], [1]]).to eq([[1],[2],[3]])
+        #expect(Cons[Cons[[],[2,[3]]], [1]]).to eq([[1], [2,[3]]])
+      end
     end
 
-    describe "Fold[Cons]" do
+    describe "Foldl[Cons] []" do
       it 'should be id for lists' do
-        expect(Fold[Cons].([]).([1,2,3])).to eq([1,2,3])
+        expect(Foldl[Cons].([]).([1,2,3])).to eq([1,2,3])
       end
     end
   end

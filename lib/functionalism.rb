@@ -17,12 +17,31 @@ require 'functionalism/extend/proc'
 require 'functionalism/extend/symbol'
 
 module Functionalism
+  Void = ->(*) { raise 'Void is uncallable' }
+  def void?(*xs)
+    xs == [ Void ]
+    # xs.size == 1 && xs.first == Void
+  end
+
+ Identity = lambda do |x=nil| #->(x=nil) do
+   # p [:id, x]
+   if x.nil?
+     Void
+   else
+     x
+   end
+ end
+
+
   Filter = lambda do |*fs|
     ->(arr) { arr.select(&All[*procify(fs)]) }
   end
 
-  Cons = lambda do |*as,b|
-    (as << b).flatten(1)
+  Cons = lambda do |list,element|
+    # p [:cons, list, element ]
+    list = [ list ] unless list.is_a?(Array)
+    [ element ] + list #.flatten(1)
+    # (as << b).flatten(1)
   end
 
   # apply fn and prepend
@@ -52,6 +71,17 @@ module Functionalism
         first = collection.shift
         first_value = f.to_proc[initial_value, first]
         Fold[f][first_value][collection]
+      end
+    end
+  end
+
+  Foldl = lambda do |f|
+    lambda do |initial_value|
+      lambda do |collection|
+        return initial_value if collection.empty?
+        first = collection.pop
+        first_value = f.to_proc[initial_value, first]
+        Foldl[f][first_value][collection]
       end
     end
   end
@@ -88,5 +118,5 @@ module Functionalism
   end
 
   Exponentiate = Recurse[Product]
-  FunctionalPower = Recurse[Compose]
+  FunctionalPower = Recurse[Compose2]
 end

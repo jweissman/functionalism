@@ -12,7 +12,7 @@ class Proc
   alias_method :~, :memoize
 
   def compose(other_fn)
-    Compose[self, other_fn]
+    Compose2[self, other_fn]
   end
   alias_method :|, :compose
 

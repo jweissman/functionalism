@@ -1,3 +1,5 @@
 module Functionalism
-  Identity = ->(x) { x }
+  Identity = lambda do |x|
+    x
+  end
 end
