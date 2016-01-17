@@ -2,28 +2,21 @@ require 'binding_of_caller'
 
 require 'functionalism/version'
 
+require 'functionalism/procify'
+
 require 'functionalism/identity'
 require 'functionalism/compose'
 require 'functionalism/send_each'
 require 'functionalism/splat'
 
+require 'functionalism/any'
+require 'functionalism/all'
+require 'functionalism/none'
+
 require 'functionalism/extend/proc'
 require 'functionalism/extend/symbol'
 
 module Functionalism
-  def procify(xs)
-    xs.map(&:to_proc)
-  end
-
-  All   = ->(*xs) { SendEach[:all?, *xs] }
-  Both = All
-
-  Any   = ->(*xs) { SendEach[:any?, *xs] }
-  Some  = Any
-
-  None  = ->(*xs) { -Any[*xs] }
-  Neither = None
-
   Filter = lambda do |*fs|
     ->(arr) { arr.select(&All[*procify(fs)]) }
   end
@@ -55,17 +48,15 @@ module Functionalism
   Fold = lambda do |f|
     lambda do |initial_value|
       lambda do |collection|
-        accumulator = initial_value
-        collection.each do |element|
-          accumulator = f.to_proc.(accumulator, element)
-        end
-        accumulator
+        return initial_value if collection.empty?
+        first = collection.shift
+        first_value = f.to_proc[initial_value, first]
+        Fold[f][first_value][collection]
       end
     end
   end
 
   Map = ->(f) { Fold[ConsWith[f]].([]) }
-
 
   Negate = lambda do |f|
     ->(*args) { !f[*args] }
