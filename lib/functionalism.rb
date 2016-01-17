@@ -17,37 +17,22 @@ require 'functionalism/extend/proc'
 require 'functionalism/extend/symbol'
 
 module Functionalism
-  Void = ->(*) { raise 'Void is uncallable' }
-  def void?(*xs)
-    xs == [ Void ]
-    # xs.size == 1 && xs.first == Void
-  end
-
- Identity = lambda do |x=nil| #->(x=nil) do
-   # p [:id, x]
-   if x.nil?
-     Void
-   else
-     x
-   end
- end
-
-
   Filter = lambda do |*fs|
     ->(arr) { arr.select(&All[*procify(fs)]) }
   end
+  Select = Filter
 
   Cons = lambda do |list,element|
-    # p [:cons, list, element ]
     list = [ list ] unless list.is_a?(Array)
-    [ element ] + list #.flatten(1)
-    # (as << b).flatten(1)
+    [ element ] + list
   end
+  Cell = Cons
 
   # apply fn and prepend
   ConsWith = lambda do |f|
-    lambda do |*as,b|
-      (as << f.to_proc[b]).flatten(1)
+    # what do i need for this to work: Compose2[ f.to_proc, Cons ]
+    lambda do |list,element|
+      Cons[ list, f.to_proc.(element) ]
     end
   end
 
@@ -64,45 +49,59 @@ module Functionalism
     end
   end
 
+  First = lambda do |collection|
+    collection[0]
+  end
+
+  Rest = lambda do |collection|
+    collection[1..-1]
+  end
+
+  Reverse = lambda do |collection|
+    collection.reverse
+  end
+
   Fold = lambda do |f|
-    lambda do |initial_value|
+    lambda do |i|
       lambda do |collection|
-        return initial_value if collection.empty?
-        first = collection.shift
-        first_value = f.to_proc[initial_value, first]
-        Fold[f][first_value][collection]
+        return i if collection.empty?
+        x, xs = First[collection], Rest[collection]
+        Fold[f][ f.to_proc.(i, x) ][xs]
       end
     end
   end
+  Foldr  = Fold
+  Inject = Fold
+  Reduce = Fold
 
   Foldl = lambda do |f|
-    lambda do |initial_value|
+    lambda do |i|
       lambda do |collection|
-        return initial_value if collection.empty?
-        first = collection.pop
-        first_value = f.to_proc[initial_value, first]
-        Foldl[f][first_value][collection]
+        return i if collection.empty?
+        x, xs = First[Reverse[collection]], Reverse[Rest[Reverse[collection]]]
+        Foldl[f][ f.to_proc.(i, x) ][xs]
       end
     end
   end
 
-  Map = ->(f) { Fold[ConsWith[f]].([]) }
+  Map  = ->(f) { Foldl[ConsWith[f]].([]) }
+  Mapr = ->(f) {  Fold[ConsWith[f]].([]) }
 
   Negate = lambda do |f|
     ->(*args) { !f[*args] }
   end
 
-  # still not the best name here...
-  ApplyAndFold = lambda do |reducer, initial=0|
-    lambda do |*fs|
-      lambda do |*args|
-        Fold[reducer][initial].(Splat[*procify(fs)].(*args))
-      end
+  Sum = lambda do |*fs|
+    lambda do |*args|
+      Fold[:+][0].(Splat[*procify(fs)].(*args))
     end
   end
 
-  Sum = ApplyAndFold[:+]
-  Product = ApplyAndFold[:*, 1]
+  Product = lambda do |*fs|
+    lambda do |*args|
+      Fold[:*][1].(Splat[*procify(fs)].(*args))
+    end
+  end
 
   Recurse = lambda do |operation|
     lambda do |fn|

@@ -26,10 +26,9 @@ describe Functionalism do
   describe "ConsWith" do
     let(:double) { ->(x) { x * 2 } }
     it 'assembles lists while applying a fn' do
-      expect(ConsWith[double][1]).to eq([2])
+      expect(ConsWith[double][1, 2]).to eq([4, 1])
     end
   end
-
 
   describe "Iterate" do
     let(:powers_of_two) { Iterate[:*.(2)].(1) }

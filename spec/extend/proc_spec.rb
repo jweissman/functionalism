@@ -239,16 +239,37 @@ describe Proc do
 
     it 'should inject' do
       expect( f.fold([2,3]) ).to eq(5)
+      expect( :+.to_proc.foldr(%w[ hey yo ]) ).to eq("heyyo")
     end
 
     it 'should have a shorthand (<<)' do
       expect( f << [2,3,4] ).to eq(9)
+      expect( f << [2,3,4] ).to eq(9)
+      expect( :+.to_proc << %w[ hi there ] ).to eq("hithere")
+      expect( :merge.to_proc << [{first: 'Tom'},{last: 'Jones'}] ).
+        to eq({first: "Tom", last: "Jones"})
+    end
+  end
+
+  context '.foldl' do
+    it 'should inject right-to-left' do
+      expect( :+.to_proc.foldl(%w[ hey yo ]) ).to eq("yohey")
+    end
+
+    it 'should have a shorthand (>>)' do
+      expect( :+.to_proc >> %w[ hi there ] ).to eq("therehi")
+      expect( :merge.to_proc >> [{first: 'Tom'},{last: 'Jones'}] ).
+        to eq({first: "Tom", last: "Jones"})
     end
   end
 
   context '.iterate' do
     let(:f) do
       ->(x) { 1 + (x ** 2) }
+    end
+
+    it 'should produce Enumerators' do
+      expect( f.iterate(1) ).to be_an(Enumerator)
     end
 
     it 'should generate the infinite set of results' do

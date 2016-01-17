@@ -1,7 +1,12 @@
 class Proc
-  # def each
-  #   method(:map).to_proc
-  # end
+  def each
+    Map[self]
+  end
+
+  def map(arr)
+    each.(arr)
+  end
+  alias_method :%, :map
 
   def memoize
     ->(*args) do
@@ -41,22 +46,33 @@ class Proc
   end
   alias_method :-@, :negate
 
-  def map(arr)
-    Map[self].(arr)
-  end
-  alias_method :%, :map
-
   def filter(arr)
     Filter[self].(arr)
   end
   alias_method :&, :filter
 
-  def fold(collection, initial: 0)
+  def foldr(collection, initial: likely_zero_element_for(collection))
     Fold[self][initial].(collection)
   end
-  alias_method :<<, :fold
+  alias_method :<<, :foldr
+  alias_method :fold, :foldr
+
+  def foldl(collection, initial: likely_zero_element_for(collection))
+    Foldl[self][initial].(collection)
+  end
+  alias_method :>>, :foldl
 
   def iterate(n)
     Iterate[self].(n)
+  end
+
+  def likely_zero_element_for(c)
+    i = c.first
+    case i
+    when Hash then {}
+    when Array then []
+    when String then ""
+    when Numeric then 0
+    end
   end
 end

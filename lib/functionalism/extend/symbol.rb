@@ -9,13 +9,9 @@ class Symbol
   def as_method_of(klass)
     klass.method(self).to_proc
   end
-  
-  def each
-    to_proc.method(:map).to_proc
-  end
 
   def elements
-    as_method.method(:map)
+    Mapr[as_method]
   end
 
   def call(*args, &block)
