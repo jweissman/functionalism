@@ -245,4 +245,14 @@ describe Proc do
       expect( f << [2,3,4] ).to eq(9)
     end
   end
+
+  context '.iterate' do
+    let(:f) do
+      ->(x) { 1 + (x ** 2) }
+    end
+
+    it 'should generate the infinite set of results' do
+      expect( f.iterate(1).take(5) ).to eq([1,2,5,26,677])
+    end
+  end
 end

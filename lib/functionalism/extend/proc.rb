@@ -1,38 +1,7 @@
 class Proc
-  def compose(other_fn)
-    ->(*args) { other_fn.to_proc[self[*args]] }
-  end
-  alias_method :|, :compose
-
-  def functional_power(n)
-    case n
-    when 0 then Identity
-    when 1 then self
-    else
-      compose functional_power(n-1)
-    end
-  end
-  alias_method :^, :functional_power
-
-  def sum(g)
-    ->(*args) { self[*args] + g[*args] }
-  end
-  alias_method :+, :sum
-
-  def product(g)
-    ->(*args) { self[*args] * g[*args] }
-  end
-  alias_method :*, :product
-
-  def exponentiate(n)
-    case n
-    when 0 then Identity
-    when 1 then self
-    else
-      product exponentiate(n-1)
-    end
-  end
-  alias_method :**, :exponentiate
+  # def each
+  #   method(:map).to_proc
+  # end
 
   def memoize
     ->(*args) do
@@ -42,23 +11,52 @@ class Proc
   end
   alias_method :~, :memoize
 
+  def compose(other_fn)
+    Compose[self, other_fn]
+  end
+  alias_method :|, :compose
+
+  def functional_power(n)
+    FunctionalPower[self].(n)
+  end
+  alias_method :^, :functional_power
+
+  def sum(g)
+    Sum[self, g]
+  end
+  alias_method :+, :sum
+
+  def product(g)
+    Product[self, g]
+  end
+  alias_method :*, :product
+
+  def exponentiate(n)
+    Exponentiate[self].(n)
+  end
+  alias_method :**, :exponentiate
+
   def negate
-    ->(*args) { !self[*args] }
+    Negate[self]
   end
   alias_method :-@, :negate
 
   def map(arr)
-    arr.map(&self)
+    Map[self].(arr)
   end
   alias_method :%, :map
 
   def filter(arr)
-    arr.select(&self)
+    Filter[self].(arr)
   end
   alias_method :&, :filter
 
-  def fold(arr)
-    arr.inject(&self)
+  def fold(collection, initial: 0)
+    Fold[self][initial].(collection)
   end
   alias_method :<<, :fold
+
+  def iterate(n)
+    Iterate[self].(n)
+  end
 end

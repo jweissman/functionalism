@@ -43,10 +43,14 @@ class Greeter
     end
 
     def authz_and_format
-      SplatHash.({
-        strategy: determine_strategy,
-        display_name: format_display_name
-      })
+      ->(*args) do
+        {
+          strategy: determine_strategy,
+          display_name: format_display_name
+        }.inject({}) do |hsh,(key,f)|
+          hsh[key] = f[*args]; hsh
+        end
+      end
     end
 
     def determine_strategy
