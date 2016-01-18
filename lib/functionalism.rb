@@ -2,6 +2,8 @@ require 'binding_of_caller'
 
 require 'functionalism/version'
 
+require 'functionalism/support/tco'
+
 require 'functionalism/procify'
 
 require 'functionalism/identity'
@@ -17,17 +19,27 @@ require 'functionalism/extend/proc'
 require 'functionalism/extend/symbol'
 
 module Functionalism
-  Filter = lambda do |*fs|
-    lambda do |arr|
-      return [] if arr.empty?
-      x,xs = First[arr], Rest[arr]
-      if All[*procify(fs)].(x)
-        Cons[Filter[*procify(fs)].(xs), x]
-      else
-        Filter[*procify(fs)].(xs)
-      end
+  extend TailCallOptimization
+
+  def filter(f,arr)
+    arr = arr.to_a if arr.is_a?(Range)
+    pr = f.to_proc
+    x,xs = arr.first, arr[1..-1]
+
+    if arr.empty?
+      []
+    elsif pr.(x)
+      [ x ] + filter(f,xs)
+    else
+      filter(f,xs)
     end
   end
+  xtail :filter
+
+  Filter = lambda do |f,arr|
+    filter(f, arr)
+  end.curry
+
   Select = Filter
 
   Flip = lambda do |f|
@@ -60,7 +72,7 @@ module Functionalism
   end.curry
 
   First = lambda do |collection|
-    collection[0]
+    collection.first
   end
 
   Rest = lambda do |collection|
@@ -68,13 +80,21 @@ module Functionalism
   end
 
   Reverse = lambda do |collection|
-    collection.reverse
+    return [] if collection.empty?
+    Append[Reverse[Rest[collection]], First[collection]]
   end
 
+  Last = Compose2[Reverse, First]
+
+  def fold(f,i,arr)
+    return i if arr.empty?
+    x,xs = First[arr], Rest[arr]
+    fold(f, f.to_proc.(i,x), xs)
+  end
+  xtail :fold
+
   Fold = lambda do |f,i,collection|
-    return i if collection.empty?
-    x, xs = First[collection], Rest[collection]
-    Fold[f, f.to_proc.(i, x), xs]
+    fold(f,i,collection)
   end.curry
 
   Foldr  = Fold
@@ -90,31 +110,30 @@ module Functionalism
     ->(*args) { !f[*args] }
   end
 
-  Sum = lambda do |*fs|
+  Sum     = Fold[:+, 0]
+  Product = Fold[:*, 1]
+
+  FunctionalSum = lambda do |*fs|
     lambda do |*args|
-      Fold[:+][0].(Splat[*procify(fs)].(*args))
+      Sum.(Splat[*procify(fs)].(*args))
     end
   end
 
-  Product = lambda do |*fs|
+  FunctionalProduct = lambda do |*fs|
     lambda do |*args|
-      Fold[:*][1].(Splat[*procify(fs)].(*args))
+      Product.(Splat[*procify(fs)].(*args))
     end
   end
 
-  Recurse = lambda do |operation|
-    lambda do |fn|
-      lambda do |n|
-        case n
-        when 0 then Identity
-        when 1 then fn
-        else
-          operation[fn, Recurse[operation][fn][n-1]]
-        end
-      end
+  Recurse = lambda do |operation, fn, n|
+    case n
+    when 0 then Identity
+    when 1 then fn
+    else
+      operation[fn, Recurse[operation, fn, n-1]]
     end
-  end
+  end.curry
 
-  Exponentiate = Recurse[Product]
+  Exponentiate = Recurse[FunctionalProduct]
   FunctionalPower = Recurse[Compose2]
 end
