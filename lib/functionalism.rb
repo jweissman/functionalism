@@ -62,6 +62,11 @@ module Functionalism
     Cons[ list, f.to_proc.(*element) ]
   end.curry
 
+  List = lambda do |*args|
+    return [] if args.empty?
+    Cons[ List[*Rest[args]], First[args]]
+  end
+
   Iterate = lambda do |fn,i|
     Enumerator.new do |y|
       val = i
@@ -77,7 +82,11 @@ module Functionalism
   end
 
   Rest = lambda do |collection|
-    collection[1..-1]
+    if collection.is_a?(Enumerator)
+      collection.lazy.drop(1)
+    else
+      collection[1..-1]
+    end
   end
 
   Reverse = lambda do |collection|
@@ -116,6 +125,17 @@ module Functionalism
   end.curry
 
   Zip = ZipWith[Cons]
+
+  UnzipWith = lambda do |f,arrs|
+    fa = f.(*Map[First].(arrs))
+    rests = (Map[Rest].(arrs))
+
+    return [fa] if rests.any? { |rest| rest.empty? }
+
+    Cons[ UnzipWith[f][rests], fa ]
+  end.curry
+
+  Unzip = UnzipWith[List]
 
   Max = lambda do |a,b|
     a > b ? a : b
@@ -159,6 +179,31 @@ module Functionalism
     return a if !p.to_proc[First[a]]
     DropWhile[p, Rest[a]]
   end
+
+  Cycle = lambda do |arr|
+    Enumerator.new do |y|
+      loop do
+        arr.each do |e|
+          y.yield(e)
+        end
+      end
+    end
+  end
+
+  Repeat = lambda do |e|
+    Enumerator.new do |y|
+      loop { y.yield(e) }
+    end
+  end
+
+  Successor = lambda do |n|
+    if n.is_a?(Numeric)
+      n + 1
+    elsif n.is_a?(String)
+      n.next
+    end
+  end
+  Succ = Successor
 
   Negate = lambda do |f|
     ->(*args) { !f[*args] }

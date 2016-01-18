@@ -46,12 +46,32 @@ describe Functionalism do
     end
   end
 
+  describe "List" do
+    it 'assembles lists' do
+      expect(List[1,2,3]).to eq([1,2,3])
+    end
+  end
+
   describe "Zip" do
     let(:a) { [1,2,3] }
     let(:b) { [4,5,6] }
 
-    it 'weaves arrays together' do
+    it 'weaves two arrays together' do
       expect(Zip[a,b]).to eq([[1,4],[2,5],[3,6]])
+    end
+  end
+
+  describe "Unzip" do
+    let(:a) { [1,4] }
+    let(:b) { [2,5] }
+    let(:c) { [3,6] }
+
+    it 'weaves n-arrays together (inverse of Zip)' do
+      expect(Unzip[[a,b,c]]).to eq([[1,2,3],[4,5,6]])
+    end
+
+    it 'is the inverse of zip' do
+      expect(Unzip[Zip[a,b]]).to eq([a,b])
     end
   end
 
@@ -99,6 +119,32 @@ describe Functionalism do
   describe "DropWhite" do
     it 'ignores elements while condition holds' do
       expect(DropWhile[:<.(2), [-1,0,1,2,3]]).to eq([2,3])
+    end
+  end
+
+  describe "Cycle" do
+    it 'creates a circular list from a finite one' do
+      expect(Take[10, Cycle.([1,2,3])]).
+        to eq([1,2,3,1,2,3,1,2,3,1])
+    end
+  end
+
+  describe "Repeat" do
+    it 'creates an infinite list of the argument' do
+      expect(Take[10, Repeat.(1)]).
+        to eq([1,1,1,1,1,1,1,1,1,1])
+    end
+  end
+
+  describe "Successor" do
+    it 'indicates the next natural number' do
+      expect(Successor[5]).to eql(6)
+      expect(Successor[128]).to eql(129)
+    end
+
+    it 'indicates the next letter' do
+      expect(Succ['d']).to eq('e')
+      expect(Succ['hello']).to eq('hellp')
     end
   end
 
