@@ -10,10 +10,26 @@ describe Functionalism do
   describe "Cons" do
     it 'assembles lists' do
       aggregate_failures 'constructing lists' do
-        expect(Cons[Cons[3,2], 1]).to eq([1,2,3])
-        expect(Cons[Cons[[[3]],[2]], [1]]).to eq([[1],[2],[3]])
-        #expect(Cons[Cons[[],[2,[3]]], [1]]).to eq([[1], [2,[3]]])
+        expect(
+          Cons[Cons[Cons[[], 3], 2], 1]
+        ).to eq([1,2,3])
+
+        expect(
+          Cons[Cons[Cons[[], [3]], [2]], [1]]
+        ).to eq([[1],[2],[3]])
       end
+    end
+
+    it 'has a synonym (Prepend)' do
+      expect(
+        Prepend[Prepend[Prepend[[], 'apple'], 'bear'], 'cook']
+      ).to eq(%w[ cook bear apple ]) #[['apple'],[2],[3]])
+    end
+
+    it 'has a antonym (Prepend)' do
+      expect(
+        Append[Append[Append[[], 'apple'], 'bear'], 'cook']
+      ).to eq(%w[ apple bear cook])
     end
 
     describe "Foldl[Cons] []" do
@@ -26,7 +42,7 @@ describe Functionalism do
   describe "ConsWith" do
     let(:double) { ->(x) { x * 2 } }
     it 'assembles lists while applying a fn' do
-      expect(ConsWith[double][1, 2]).to eq([4, 1])
+      expect(ConsWith[double][Cons[[], 2], 3]).to eq([6, 2])
     end
   end
 

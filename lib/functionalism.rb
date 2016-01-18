@@ -18,36 +18,46 @@ require 'functionalism/extend/symbol'
 
 module Functionalism
   Filter = lambda do |*fs|
-    ->(arr) { arr.select(&All[*procify(fs)]) }
-  end
-  Select = Filter
-
-  Cons = lambda do |list,element|
-    list = [ list ] unless list.is_a?(Array)
-    [ element ] + list
-  end
-  Cell = Cons
-
-  # apply fn and prepend
-  ConsWith = lambda do |f|
-    # what do i need for this to work: Compose2[ f.to_proc, Cons ]
-    lambda do |list,element|
-      Cons[ list, f.to_proc.(element) ]
-    end
-  end
-
-
-  Iterate = lambda do |fn|
-    lambda do |initial_value|
-      Enumerator.new do |y|
-        val = initial_value
-        loop do
-          y.yield(val)
-          val = fn.(val)
-        end
+    lambda do |arr|
+      return [] if arr.empty?
+      x,xs = First[arr], Rest[arr]
+      if All[*procify(fs)].(x)
+        Cons[Filter[*procify(fs)].(xs), x]
+      else
+        Filter[*procify(fs)].(xs)
       end
     end
   end
+  Select = Filter
+
+  Flip = lambda do |f|
+    lambda do |a,b|
+      f.(b,a)
+    end
+  end
+
+  Cons = lambda do |list,element|
+    [ element ] + list
+  end
+  Prepend = Cons
+
+  Append = lambda do |list,element|
+    list + [ element ]
+  end
+
+  ConsWith = lambda do |f,list,element|
+    Cons[ list, f.to_proc.(element) ]
+  end.curry
+
+  Iterate = lambda do |fn,i|
+    Enumerator.new do |y|
+      val = i
+      loop do
+        y.yield(val)
+        val = fn.(val)
+      end
+    end
+  end.curry
 
   First = lambda do |collection|
     collection[0]
