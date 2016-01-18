@@ -7,6 +7,13 @@ describe Functionalism do
     end
   end
 
+  describe "Length" do
+    it 'should indicate the size of the collection' do
+      expect(Length.([1,2])).to eq(2)
+      expect(Length.((1..1000).to_a)).to eq(1000)
+    end
+  end
+
   describe "Cons" do
     it 'assembles lists' do
       aggregate_failures 'constructing lists' do
@@ -180,6 +187,21 @@ describe Functionalism do
     it 'should multiply a list of numbers' do
       expect(Product.([1,2])).to eq(2)
       expect(Product.([1,2,3])).to eq(6)
+    end
+  end
+
+  describe "And" do
+    it 'should && a list of booleans' do
+      expect(And.([true,true,true])).to eq(true)
+      expect(And.([true,true,false])).to eq(false)
+    end
+  end
+
+  describe "Or" do
+    it 'should || a list of booleans' do
+      expect(Or.([true,false,true])).to eq(true)
+      expect(Or.([true,true,false])).to eq(true)
+      expect(Or.([false,false,false])).to eq(false)
     end
   end
 

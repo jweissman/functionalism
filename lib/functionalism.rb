@@ -21,6 +21,43 @@ require 'functionalism/extend/symbol'
 module Functionalism
   extend TailCallOptimization
 
+  Successor = lambda do |n, *ignored|
+    if n.is_a?(Numeric)
+      n + 1
+    elsif n.is_a?(String)
+      n.next
+    end
+  end
+  Succ = Successor
+
+  First = lambda do |collection|
+    collection.first
+  end
+
+  Rest = lambda do |collection|
+    if collection.is_a?(Enumerator)
+      collection.lazy.drop(1)
+    else
+      collection[1..-1]
+    end
+  end
+
+  def fold(f,i,arr)
+    return i if arr.empty?
+    fold(f, f.to_proc.(i,First[arr]), Rest[arr])
+  end
+  xtail :fold
+
+  Fold = lambda do |f,i,collection|
+    fold(f,i,collection)
+  end.curry
+
+  Foldr  = Fold
+  Inject = Fold
+  Reduce = Fold
+
+  Foldl = ->(f,i,collection) { Foldr[f,i,Reverse[collection]] }.curry
+
   Filter = lambda do |f,arr|
     reducer = lambda do |acc,x|
       case f.to_proc[x]
@@ -32,9 +69,10 @@ module Functionalism
     arr = arr.to_a if arr.is_a?(Range)
     Reverse[Fold[reducer,[],arr]]
   end.curry
-
   Select = Filter
 
+  Length = Fold[Successor, 0]
+  
   Flip = lambda do |f|
     lambda do |a,b|
       f.(b,a)
@@ -70,37 +108,8 @@ module Functionalism
     end
   end.curry
 
-  First = lambda do |collection|
-    collection.first
-  end
-
-  Rest = lambda do |collection|
-    if collection.is_a?(Enumerator)
-      collection.lazy.drop(1)
-    else
-      collection[1..-1]
-    end
-  end
-
-  def fold(f,i,arr)
-    return i if arr.empty?
-    fold(f, f.to_proc.(i,First[arr]), Rest[arr])
-  end
-  xtail :fold
-
-  Fold = lambda do |f,i,collection|
-    fold(f,i,collection)
-  end.curry
-
-  Foldr  = Fold
-  Inject = Fold
-  Reduce = Fold
-
-  Foldl = ->(f,i,collection) { Foldr[f,i,Reverse[collection]] }.curry
-
   Reverse = Fold[Prepend,[]]
   Last = Compose2[Reverse, First]
-
 
   Map  = ->(f) { Foldl[ConsWith[f]].([]) }
   Mapr = ->(f) {  Fold[ConsWith[f]].([]) }
@@ -185,21 +194,15 @@ module Functionalism
     end
   end
 
-  Successor = lambda do |n|
-    if n.is_a?(Numeric)
-      n + 1
-    elsif n.is_a?(String)
-      n.next
-    end
-  end
-  Succ = Successor
-
   Negate = lambda do |f|
     ->(*args) { !f[*args] }
   end
 
   Sum     = Fold[:+, 0]
   Product = Fold[:*, 1]
+
+  And     = Fold[->(a,b) { a && b }, true]
+  Or      = Fold[->(a,b) { a || b }, false]
 
   FunctionalSum = lambda do |*fs|
     lambda do |*args|
