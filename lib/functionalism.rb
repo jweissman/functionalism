@@ -77,11 +77,12 @@ module Functionalism
 
   Length = Fold[Successor, 0]
 
-  Flip = lambda do |f|
-    lambda do |a,b|
-      f.(b,a)
-    end
-  end
+  Flip = ->(f,x,y) { f.(y,x) }.curry
+  # Flip = lambda do |f|
+  #   lambda do |a,b|
+  #     f.(b,a)
+  #   end
+  # end
 
   Cons = lambda do |list,element|
     list = [ list ] unless list.is_a?(Array)
@@ -128,9 +129,7 @@ module Functionalism
   UnzipWith = lambda do |f,arrs|
     fa = f.(*Map[First].(arrs))
     rests = (Map[Rest].(arrs))
-
     return [fa] if rests.any? { |rest| rest.empty? }
-
     Cons[ UnzipWith[f][rests], fa ]
   end.curry
 
@@ -237,4 +236,13 @@ module Functionalism
     Quicksort[Filter[:<=.(x), xs]] + [ x ] + Quicksort[Filter[:>.(x),  xs]]
   end
   QSort = Quicksort
+
+  SplitAt = lambda do |n, arr|
+    return [[],arr] if n == 0
+    return [[],[]] if arr.empty?
+    raise "Can't split on negative index!" unless n > 0
+    x, xs = First[arr], Rest[arr]
+    xs_prime, xs_prime_prime = *SplitAt[n-1,xs]
+    [ Cons[xs_prime, x], xs_prime_prime ]
+  end.curry
 end
