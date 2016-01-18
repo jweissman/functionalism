@@ -55,6 +55,53 @@ describe Functionalism do
     end
   end
 
+  describe "Maximum" do
+    it 'finds the largest of a set' do
+      expect(Maximum[[1,2,3]]).to eq(3)
+      expect(Maximum[[8,12,14,16]]).to eq(16)
+    end
+  end
+
+  describe "Minimum" do
+    it 'finds the smallest of a set' do
+      expect(Minimum[[1,2,3]]).to eq(1)
+      expect(Minimum[[8,12,14,16]]).to eq(8)
+    end
+  end
+
+  describe "Replicate" do
+    it 'creates a list of length given by a first arg with items of the second arg' do
+      expect(Replicate[2, 'a']).to eq(['a', 'a'])
+      expect(Replicate[4, 4]).to eq([4,4,4,4])
+    end
+  end
+
+  describe "Take" do
+    it 'gathers n elements from an array' do
+      expect(Take[1, %w[ hello world ]]).to eq(["hello"])
+      expect(Take[2, [5,6,7,8,9,10]]).to eq([5,6])
+    end
+  end
+
+  describe "TakeWhile" do
+    it 'gathers elements while condition holds' do
+      expect(TakeWhile[:<.(2), [-1,0,1,2,3]]).to eq([-1,0,1])
+    end
+  end
+
+  describe "Drop" do
+    it 'ignores n elements from an array' do
+      expect(Drop[1, %w[ hello world ]]).to eq(["world"])
+      expect(Drop[2, [5,6,7,8,9,10]]).to eq([7,8,9,10])
+    end
+  end
+
+  describe "DropWhite" do
+    it 'ignores elements while condition holds' do
+      expect(DropWhile[:<.(2), [-1,0,1,2,3]]).to eq([2,3])
+    end
+  end
+
   describe "Iterate" do
     let(:powers_of_two) { Iterate[:*.(2)].(1) }
     it 'should create a generator factory' do

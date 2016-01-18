@@ -117,6 +117,49 @@ module Functionalism
 
   Zip = ZipWith[Cons]
 
+  Max = lambda do |a,b|
+    a > b ? a : b
+  end
+
+  Min = lambda do |a,b|
+    a < b ? a : b
+  end
+
+  Maximum = lambda do |arr|
+    return arr.first if arr.size == 1
+    Max[First[arr], Maximum[Rest[arr]]]
+  end
+
+  Minimum = lambda do |arr|
+    return arr.first if arr.size == 1
+    Min[First[arr], Minimum[Rest[arr]]]
+  end
+
+  Replicate = lambda do |n, a|
+    return [] if n == 0
+    Cons[Replicate[n-1][a], a]
+  end.curry
+
+  Take = lambda do |n, a|
+    return [] if n == 0
+    Cons[Take[n-1, Rest[a]], First[a]]
+  end
+
+  TakeWhile = lambda do |p, a|
+    return [] if !p.to_proc[First[a]]
+    Cons[TakeWhile[p, Rest[a]], First[a]]
+  end
+
+  Drop = lambda do |n, a|
+    return a if n == 0
+    Drop[n-1, Rest[a]]
+  end
+
+  DropWhile = lambda do |p,a|
+    return a if !p.to_proc[First[a]]
+    DropWhile[p, Rest[a]]
+  end
+
   Negate = lambda do |f|
     ->(*args) { !f[*args] }
   end
