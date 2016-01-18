@@ -44,9 +44,8 @@ module Functionalism
     end
   end
 
-  # we could use destructuring here but seems to impact perf significantly
   def fold(f,i,arr)
-    return i if arr.size == 0 #empty?
+    return i if arr.size == 0
     fold(f, f.to_proc.(i,First[arr]), Rest[arr])
   end
   xtail :fold
@@ -60,6 +59,8 @@ module Functionalism
   Reduce = Fold
 
   Foldl = ->(f,i,collection) { Foldr[f,i,Reverse[collection]] }.curry
+
+  Flatten = Fold[:+,[]]
 
   Filter = lambda do |f,arr|
     reducer = lambda do |acc,x|

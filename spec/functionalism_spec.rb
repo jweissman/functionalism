@@ -46,6 +46,12 @@ describe Functionalism do
     end
   end
 
+  describe "Flatten" do
+    it 'should flatten arrays together' do
+      expect(Flatten.([[1,2],[3],[4,5,6]])).to eq([1,2,3,4,5,6])
+    end
+  end
+
   describe "ConsWith" do
     let(:double) { ->(x) { x * 2 } }
     it 'assembles lists while applying a fn' do
