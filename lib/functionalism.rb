@@ -21,23 +21,16 @@ require 'functionalism/extend/symbol'
 module Functionalism
   extend TailCallOptimization
 
-  def filter(f,arr)
-    arr = arr.to_a if arr.is_a?(Range)
-    pr = f.to_proc
-    x,xs = arr.first, arr[1..-1]
-
-    if arr.empty?
-      []
-    elsif pr.(x)
-      [ x ] + filter(f,xs)
-    else
-      filter(f,xs)
-    end
-  end
-  xtail :filter
-
   Filter = lambda do |f,arr|
-    filter(f, arr)
+    reducer = lambda do |acc,x|
+      case f.to_proc[x]
+      when true then Cons[acc,x]
+      when false then acc
+      end
+    end
+
+    arr = arr.to_a if arr.is_a?(Range)
+    Reverse[Fold[reducer,[],arr]]
   end.curry
 
   Select = Filter
@@ -89,17 +82,9 @@ module Functionalism
     end
   end
 
-  Reverse = lambda do |collection|
-    return [] if collection.empty?
-    Append[Reverse[Rest[collection]], First[collection]]
-  end
-
-  Last = Compose2[Reverse, First]
-
   def fold(f,i,arr)
     return i if arr.empty?
-    x,xs = First[arr], Rest[arr]
-    fold(f, f.to_proc.(i,x), xs)
+    fold(f, f.to_proc.(i,First[arr]), Rest[arr])
   end
   xtail :fold
 
@@ -112,6 +97,10 @@ module Functionalism
   Reduce = Fold
 
   Foldl = ->(f,i,collection) { Foldr[f,i,Reverse[collection]] }.curry
+
+  Reverse = Fold[Prepend,[]]
+  Last = Compose2[Reverse, First]
+
 
   Map  = ->(f) { Foldl[ConsWith[f]].([]) }
   Mapr = ->(f) {  Fold[ConsWith[f]].([]) }

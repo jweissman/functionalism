@@ -217,8 +217,8 @@ describe Functionalism do
         expect( pipeline.(1..40_000) ).to eql( 114294285 )
       end
 
-      xit 'should handle a very large set' do
-        expect( pipeline.(1..100_000) ).to eql( 114294285 )
+      it 'should handle a very large set' do
+        expect( pipeline.(1..100_000) ).to eql( 714264285 )
       end
     end
   end
