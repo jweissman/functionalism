@@ -15,7 +15,7 @@ Provides for symbol and proc-based functional composition with `|`.
 
 ## Augmentations
 
-Here is a full list of the super-powers `Proc` and friends will have after including this.
+Here are some of the super-powers `Proc` and friends will have after including this.
 
 ### Proc
 

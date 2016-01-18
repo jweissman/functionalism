@@ -42,6 +42,7 @@ module Functionalism
     end
   end
 
+  # we could use destructuring here but seems to impact perf significantly
   def fold(f,i,arr)
     return i if arr.empty?
     fold(f, f.to_proc.(i,First[arr]), Rest[arr])
@@ -72,7 +73,7 @@ module Functionalism
   Select = Filter
 
   Length = Fold[Successor, 0]
-  
+
   Flip = lambda do |f|
     lambda do |a,b|
       f.(b,a)
@@ -114,12 +115,9 @@ module Functionalism
   Map  = ->(f) { Foldl[ConsWith[f]].([]) }
   Mapr = ->(f) {  Fold[ConsWith[f]].([]) }
 
-  ZipWith = lambda do |f,arr_a,arr_b|
-    a,as = First[arr_a], Rest[arr_a]
-    b,bs = First[arr_b], Rest[arr_b]
-    fab = f[b,a]
-    return [fab] if bs.empty? || as.empty?
-    Cons[ ZipWith[f][as,bs],  fab ]
+  ZipWith = lambda do |f, (a,*as), (b,*bs)|
+    return [f.(b,a)] if bs.empty? || as.empty?
+    Cons[ ZipWith[f][as,bs],  f.(b,a) ]
   end.curry
 
   Zip = ZipWith[Cons]
@@ -143,14 +141,14 @@ module Functionalism
     a < b ? a : b
   end
 
-  Maximum = lambda do |arr|
-    return arr.first if arr.size == 1
-    Max[First[arr], Maximum[Rest[arr]]]
+  Maximum = lambda do |(a,*as)|
+    return a if as.empty?
+    Max[a, Maximum[as]]
   end
 
-  Minimum = lambda do |arr|
-    return arr.first if arr.size == 1
-    Min[First[arr], Minimum[Rest[arr]]]
+  Minimum = lambda do |(a,*as)|
+    return a if as.empty?
+    Min[a, Minimum[as]]
   end
 
   Replicate = lambda do |n, a|
@@ -173,9 +171,12 @@ module Functionalism
     Drop[n-1, Rest[a]]
   end
 
-  DropWhile = lambda do |p,a|
-    return a if !p.to_proc[First[a]]
-    DropWhile[p, Rest[a]]
+  DropWhile = lambda do |p,(a,*as)|
+    if !p.to_proc[a]
+      Cons[as,a]
+    else
+      DropWhile[p,as]
+    end
   end
 
   Cycle = lambda do |arr|
@@ -227,4 +228,9 @@ module Functionalism
 
   Exponentiate = Recurse[FunctionalProduct]
   FunctionalPower = Recurse[Compose2]
+
+  Quicksort = lambda do |(x,*xs)|
+    return [] if x.nil?
+    Quicksort[Filter[:<=.(x), xs]] + [ x ] + Quicksort[Filter[:>.(x),  xs]]
+  end
 end

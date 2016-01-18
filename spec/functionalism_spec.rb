@@ -30,7 +30,7 @@ describe Functionalism do
     it 'has a synonym (Prepend)' do
       expect(
         Prepend[Prepend[Prepend[[], 'apple'], 'bear'], 'cook']
-      ).to eq(%w[ cook bear apple ]) #[['apple'],[2],[3]])
+      ).to eq(%w[ cook bear apple ])
     end
 
     it 'has an antonym (Append)' do
@@ -205,6 +205,13 @@ describe Functionalism do
     end
   end
 
+  describe "Quicksort" do
+    it 'should sort a list' do
+      expect(Quicksort.([2,3,1,4])).to eq([1,2,3,4])
+      expect(Quicksort.(['a','c','e','b','d'])).to eq(['a', 'b', 'c', 'd', 'e'])
+    end
+  end
+
   context "a pipeline" do
     describe 'a basic pipeline' do
       let(:pipeline) do
@@ -217,10 +224,10 @@ describe Functionalism do
     end
 
     describe 'for numeric composition with ranges' do
-      let(:mod_seven) { ->(x) { x % 7 == 0 } }
+      let(:divisible_by_seven) { ->(x) { x % 7 == 0 } }
 
       let(:pipeline) do
-        Filter[mod_seven] | Sum
+        Filter[divisible_by_seven] | Sum
       end
 
       it 'should handle a small set' do
