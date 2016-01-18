@@ -37,6 +37,8 @@ module Functionalism
   Rest = lambda do |collection|
     if collection.is_a?(Enumerator)
       collection.lazy.drop(1)
+    elsif collection.is_a?(Range)
+      ((collection.begin+1)...collection.end)
     else
       collection[1..-1]
     end
@@ -44,7 +46,7 @@ module Functionalism
 
   # we could use destructuring here but seems to impact perf significantly
   def fold(f,i,arr)
-    return i if arr.empty?
+    return i if arr.size == 0 #empty?
     fold(f, f.to_proc.(i,First[arr]), Rest[arr])
   end
   xtail :fold
@@ -233,4 +235,5 @@ module Functionalism
     return [] if x.nil?
     Quicksort[Filter[:<=.(x), xs]] + [ x ] + Quicksort[Filter[:>.(x),  xs]]
   end
+  QSort = Quicksort
 end

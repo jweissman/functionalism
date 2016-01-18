@@ -20,4 +20,16 @@ describe "Examples" do
         to output("UNAUTHORIZED\n").to_stdout
     end
   end
+
+  describe "examples/collatz.rb" do
+    it 'should compute hailstone sequences' do
+      expect( Collatz[10] ).to eq([10,5,16,8,4,2,1])
+    end
+
+    it 'should produce hailstone sequences starting from each element of the list' do
+      expect( Hailstones[[10,11]] ).to eq(
+        [[10,5,16,8,4,2,1],
+         [11, 34, 17, 52, 26, 13, 40, 20, 10, 5, 16, 8, 4, 2, 1]])
+    end
+  end
 end
