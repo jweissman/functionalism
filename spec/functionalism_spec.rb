@@ -46,6 +46,15 @@ describe Functionalism do
     end
   end
 
+  describe "Zip" do
+    let(:a) { [1,2,3] }
+    let(:b) { [4,5,6] }
+
+    it 'weaves arrays together' do
+      expect(Zip[a,b]).to eq([[1,4],[2,5],[3,6]])
+    end
+  end
+
   describe "Iterate" do
     let(:powers_of_two) { Iterate[:*.(2)].(1) }
     it 'should create a generator factory' do

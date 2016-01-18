@@ -49,6 +49,7 @@ module Functionalism
   end
 
   Cons = lambda do |list,element|
+    list = [ list ] unless list.is_a?(Array)
     [ element ] + list
   end
   Prepend = Cons
@@ -57,8 +58,8 @@ module Functionalism
     list + [ element ]
   end
 
-  ConsWith = lambda do |f,list,element|
-    Cons[ list, f.to_proc.(element) ]
+  ConsWith = lambda do |f,list,*element|
+    Cons[ list, f.to_proc.(*element) ]
   end.curry
 
   Iterate = lambda do |fn,i|
@@ -105,6 +106,16 @@ module Functionalism
 
   Map  = ->(f) { Foldl[ConsWith[f]].([]) }
   Mapr = ->(f) {  Fold[ConsWith[f]].([]) }
+
+  ZipWith = lambda do |f,arr_a,arr_b|
+    a,as = First[arr_a], Rest[arr_a]
+    b,bs = First[arr_b], Rest[arr_b]
+    fab = f[b,a]
+    return [fab] if bs.empty? || as.empty?
+    Cons[ ZipWith[f][as,bs],  fab ]
+  end.curry
+
+  Zip = ZipWith[Cons]
 
   Negate = lambda do |f|
     ->(*args) { !f[*args] }
