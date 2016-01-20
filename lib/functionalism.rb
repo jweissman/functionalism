@@ -4,117 +4,43 @@ require 'functionalism/version'
 
 require 'functionalism/support/tco'
 
-require 'functionalism/procify'
-
 require 'functionalism/identity'
-require 'functionalism/compose'
-require 'functionalism/send_each'
+require 'functionalism/iterate'
+
+require 'functionalism/first'
+
+require 'functionalism/fold'
+
+require 'functionalism/flatten'
+require 'functionalism/filter'
+
+require 'functionalism/call'
+require 'functionalism/compose2'
+
+require 'functionalism/successor'
+require 'functionalism/length'
+
+require 'functionalism/second'
+
+require 'functionalism/flip'
+
 require 'functionalism/splat'
 
-require 'functionalism/any'
-require 'functionalism/all'
-require 'functionalism/none'
+require 'functionalism/cons'
+require 'functionalism/cons_with'
+
+require 'functionalism/reverse'
+
+require 'functionalism/list'
 
 require 'functionalism/extend/proc'
 require 'functionalism/extend/symbol'
 
 module Functionalism
-  extend TailCallOptimization
-
-  Successor = lambda do |n, *ignored|
-    if n.is_a?(Numeric)
-      n + 1
-    elsif n.is_a?(String)
-      n.next
-    end
-  end
-  Succ = Successor
-
-  First = lambda do |collection|
-    collection.first
-  end
-
-  Rest = lambda do |collection|
-    if collection.is_a?(Enumerator)
-      collection.lazy.drop(1)
-    elsif collection.is_a?(Range)
-      ((collection.begin+1)...collection.end)
-    else
-      collection[1..-1]
-    end
-  end
-
-  def fold(f,i,arr)
-    return i if arr.size == 0
-    fold(f, f.to_proc.(i,First[arr]), Rest[arr])
-  end
-  xtail :fold
-
-  Fold = lambda do |f,i,collection|
-    fold(f,i,collection)
-  end.curry
-
-  Foldr  = Fold
-  Inject = Fold
-  Reduce = Fold
-
-  Foldl = ->(f,i,collection) { Foldr[f,i,Reverse[collection]] }.curry
-
-  Flatten = Fold[:+,[]]
-
-  Filter = lambda do |f,arr|
-    reducer = lambda do |acc,x|
-      case f.to_proc[x]
-      when true then Cons[acc,x]
-      when false then acc
-      end
-    end
-
-    arr = arr.to_a if arr.is_a?(Range)
-    Reverse[Fold[reducer,[],arr]]
-  end.curry
-  Select = Filter
-
-  Length = Fold[Successor, 0]
-
-  Flip = ->(f,x,y) { f.(y,x) }.curry
-  # Flip = lambda do |f|
-  #   lambda do |a,b|
-  #     f.(b,a)
-  #   end
-  # end
-
-  Cons = lambda do |list,element|
-    list = [ list ] unless list.is_a?(Array)
-    [ element ] + list
-  end
-  Prepend = Cons
-
-  Append = lambda do |list,element|
-    list + [ element ]
-  end
-
-  ConsWith = lambda do |f,list,*element|
-    Cons[ list, f.to_proc.(*element) ]
-  end.curry
-
-  List = lambda do |*args|
-    return [] if args.empty?
-    Cons[ List[*Rest[args]], First[args]]
-  end
-
-  Iterate = lambda do |fn,i|
-    Enumerator.new do |y|
-      val = i
-      loop do
-        y.yield(val)
-        val = fn.(val)
-      end
-    end
-  end.curry
-
-  Reverse = Fold[Prepend,[]]
-  Last = Compose2[Reverse, First]
+  Initial = Compose2[Compose2[Reverse,Tail],Reverse]
+  # Initial = Compose[[Reverse, Tail, Reverse]]
+  # Initial = Compose[reversal]
+  Last = Compose2[Reverse, Head]
 
   Map  = ->(f) { Foldl[ConsWith[f]].([]) }
   Mapr = ->(f) {  Fold[ConsWith[f]].([]) }
@@ -209,16 +135,17 @@ module Functionalism
 
   FunctionalSum = lambda do |*fs|
     lambda do |*args|
-      Sum.(Splat[*procify(fs)].(*args))
+      Sum[Splat[fs,args]]
     end
   end
 
   FunctionalProduct = lambda do |*fs|
     lambda do |*args|
-      Product.(Splat[*procify(fs)].(*args))
+      Product[Splat[fs,args]]
     end
   end
 
+  # this has got to be expressible as a fold right?
   Recurse = lambda do |operation, fn, n|
     case n
     when 0 then Identity
@@ -245,4 +172,9 @@ module Functionalism
     xs_prime, xs_prime_prime = *SplitAt[n-1,xs]
     [ Cons[xs_prime, x], xs_prime_prime ]
   end.curry
+
+  Proc = ->(f) { f.to_proc }
+  Procify = Map[Proc]
+
+  Detect = Compose2[Filter,First]
 end

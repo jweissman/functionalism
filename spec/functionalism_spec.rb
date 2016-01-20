@@ -1,70 +1,6 @@
 require 'spec_helper'
 
 describe Functionalism do
-  describe "Filter" do
-    it 'should use a proc as a test' do
-      expect(Filter[:integer?].([1,1.2,4,5,8])).to eq([1,4,5,8])
-    end
-  end
-
-  describe "Length" do
-    it 'should indicate the size of the collection' do
-      expect(Length.([1,2])).to eq(2)
-      expect(Length.((1..1000).to_a)).to eq(1000)
-    end
-  end
-
-  describe "Cons" do
-    it 'assembles lists' do
-      aggregate_failures 'constructing lists' do
-        expect(
-          Cons[Cons[Cons[[], 3], 2], 1]
-        ).to eq([1,2,3])
-
-        expect(
-          Cons[Cons[Cons[[], [3]], [2]], [1]]
-        ).to eq([[1],[2],[3]])
-      end
-    end
-
-    it 'has a synonym (Prepend)' do
-      expect(
-        Prepend[Prepend[Prepend[[], 'apple'], 'bear'], 'cook']
-      ).to eq(%w[ cook bear apple ])
-    end
-
-    it 'has an antonym (Append)' do
-      expect(
-        Append[Append[Append[[], 'apple'], 'bear'], 'cook']
-      ).to eq(%w[ apple bear cook])
-    end
-
-    describe "Foldl[Cons] []" do
-      it 'should be id for lists' do
-        expect(Foldl[Cons].([]).([1,2,3])).to eq([1,2,3])
-      end
-    end
-  end
-
-  describe "Flatten" do
-    it 'should flatten arrays together' do
-      expect(Flatten.([[1,2],[3],[4,5,6]])).to eq([1,2,3,4,5,6])
-    end
-  end
-
-  describe "ConsWith" do
-    let(:double) { ->(x) { x * 2 } }
-    it 'assembles lists while applying a fn' do
-      expect(ConsWith[double][Cons[[], 2], 3]).to eq([6, 2])
-    end
-  end
-
-  describe "List" do
-    it 'assembles lists' do
-      expect(List[1,2,3]).to eq([1,2,3])
-    end
-  end
-
   describe "Zip" do
     let(:a) { [1,2,3] }
     let(:b) { [4,5,6] }
@@ -149,28 +85,11 @@ describe Functionalism do
     end
   end
 
-  describe "Successor" do
-    it 'indicates the next natural number' do
-      expect(Successor[5]).to eql(6)
-      expect(Successor[128]).to eql(129)
-    end
-
-    it 'indicates the next letter' do
-      expect(Succ['d']).to eq('e')
-      expect(Succ['hello']).to eq('hellp')
-    end
-  end
-
-  describe "Iterate" do
-    let(:powers_of_two) { Iterate[:*.(2)].(1) }
-    it 'should create a generator factory' do
-      expect(powers_of_two.take(5)).to eq([1,2,4,8,16])
-    end
-  end
-
-  describe "Reverse" do
-    it 'should invert the order of a collection' do
-      expect(Reverse.([1,2,3])).to eq([3,2,1])
+  describe "Initial" do
+    it 'gives all but the last element of a collection' do
+      expect(Initial.([1,2])).to eq([1])
+      expect(Initial.([1,2,3,5,8,11])).to eq([1,2,3,5,8])
+      expect(Initial[%w[ hello my baby ]]).to eq(%w[ hello my ])
     end
   end
 
@@ -252,16 +171,20 @@ describe Functionalism do
         expect( pipeline.(1..20_000) ).to eql( 28578571 )
       end
 
-      it 'should handle an even larger set' do
+      it 'should handle an even larger set', speed: 'slow' do
         expect( pipeline.(1..30_000) ).to eql( 64279285 )
       end
 
-      it 'should handle a somewhat large set' do
+      it 'should handle a somewhat large set', speed: 'slow' do
         expect( pipeline.(1..40_000) ).to eql( 114294285 )
       end
 
-      it 'should handle a very large set' do
+      it 'should handle a very large set', speed: 'slow' do
         expect( pipeline.(1..100_000) ).to eql( 714264285 )
+      end
+
+      it 'should handle a huge set', speed: 'slow' do
+        expect( pipeline.(1..250_000) ).to eql( 4464339285 )
       end
     end
   end

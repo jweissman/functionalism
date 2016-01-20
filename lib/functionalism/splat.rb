@@ -1,3 +1,5 @@
 module Functionalism
-  Splat = ->(*fs) { SendEach[:map, *fs] }
+  Splat = lambda do |fs,ys|
+    Map[Flip[Call][ys]].(fs)
+  end.curry
 end

@@ -1,5 +1,4 @@
 module TailCallOptimization
-
   RubyVM::InstructionSequence.compile_option = {
     :tailcall_optimization => true,
     :trace_instruction => false
@@ -19,5 +18,8 @@ module TailCallOptimization
     self.send(:undef_method, method)
     compile_with_tail(m.source)
   end
+end
 
+module Functionalism
+  extend TailCallOptimization
 end
