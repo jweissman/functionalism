@@ -3,6 +3,8 @@
 * [Email](mailto:jweissman1986 at gmail.com)
 
 [![Code Climate GPA](https://codeclimate.com/github/jweissman/functionalism/badges/gpa.svg)](https://codeclimate.com/github/jweissman/functionalism)
+[![Codeship Status for jweissman/functionalism](https://www.codeship.io/projects/474f9250-a1e3-0133-d683-3e2bccdc3ee6/status)](https://codeship.com/projects/128700)
+
 
 ## Description
 
