@@ -66,6 +66,18 @@ class Proc
     Iterate[self].(n)
   end
 
+  def to_s
+    identify || super
+  end
+
+  protected
+  def identify
+    @name ||= Functionalism.constants(false).detect do |const|
+      Functionalism.const_get(const) == self
+    end.to_s
+  end
+
+  private
   def likely_zero_element_for(c)
     i = c.first
     case i

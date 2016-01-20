@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "Cons" do
+describe Cons do
   it 'assembles lists' do
     aggregate_failures 'constructing lists' do
       expect(

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "Compose2" do
+describe Compose2 do
   let(:nullary) { -> { rand }}
 
   it 'should compose two procs/syms' do

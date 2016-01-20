@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "Compose" do
+describe Compose do
   it 'should compose multiple procs/symbols' do
     expect(Compose[[:upcase,:reverse,:*.(2)]].('hello')).to eq("OLLEHOLLEH")
     expect(Compose[[:*.(2), :**.(3), :+.(10)]].(4)).to eq(522)

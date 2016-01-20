@@ -31,17 +31,14 @@ require 'functionalism/cons_with'
 
 require 'functionalism/reverse'
 
+require 'functionalism/initial'
+
 require 'functionalism/list'
 
 require 'functionalism/extend/proc'
 require 'functionalism/extend/symbol'
 
 module Functionalism
-  Initial = Compose2[Compose2[Reverse,Tail],Reverse]
-  # Initial = Compose[[Reverse, Tail, Reverse]]
-  # Initial = Compose[reversal]
-  Last = Compose2[Reverse, Head]
-
   Map  = ->(f) { Foldl[ConsWith[f]].([]) }
   Mapr = ->(f) {  Fold[ConsWith[f]].([]) }
 

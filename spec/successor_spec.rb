@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "Successor" do
+describe Successor do
   it 'indicates the next natural number' do
     expect(Successor[5]).to eql(6)
     expect(Successor[128]).to eql(129)

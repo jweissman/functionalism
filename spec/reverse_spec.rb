@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "Reverse" do
+describe Reverse do
   it 'should invert the order of a collection' do
     expect(Reverse.([1,2,3])).to eq([3,2,1])
   end

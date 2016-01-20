@@ -276,4 +276,11 @@ describe Proc do
       expect( f.iterate(1).take(5) ).to eq([1,2,5,26,677])
     end
   end
+
+  context '.to_s' do
+    it 'should identify known functions' do
+      expect(Identity.to_s).to eq('Identity')
+      expect(Fold.to_s).to eq('Fold')
+    end
+  end
 end

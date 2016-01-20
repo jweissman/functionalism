@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "First" do
+describe First do
   it 'should return the first entry in an array' do
     expect(First[[1,2,3]]).to eq(1)
     expect(First[%w[hello world]]).to eq('hello')
