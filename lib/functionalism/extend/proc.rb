@@ -52,6 +52,7 @@ class Proc
     Filter[self].(arr)
   end
   alias_method :&, :filter
+  alias_method :select, :filter
 
   def foldr(collection, initial: likely_zero_element_for(collection))
     Fold[self, initial].(collection)
@@ -68,17 +69,5 @@ class Proc
 
   def iterate(n)
     Iterate[self].(n)
-  end
-
-  private
-  def likely_zero_element_for(c)
-    i = c.first
-    case i
-    when Hash then {}
-    when Array then []
-    when String then ""
-    when Numeric then 0
-    # when Proc then Identity # <--- could we use this to simplify fold impl or calls (or even display)...?
-    end
   end
 end

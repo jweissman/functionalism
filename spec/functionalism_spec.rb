@@ -130,7 +130,7 @@ describe Functionalism do
         expect( pipeline.(1..10_000) ).to eql( 7142142 )
       end
 
-      it 'should handle a slightly larger set' do
+      it 'should handle a slightly larger set', speed: 'slow' do
         expect( pipeline.(1..20_000) ).to eql( 28578571 )
       end
 

@@ -1,6 +1,4 @@
 module Functionalism
-  # extend TailCallOptimization
-
   def fold(f,i,arr)
     return i if arr.size == 0
     fold(f, AsProc[f].(i,First[arr]), Rest[arr])
@@ -34,7 +32,7 @@ module Functionalism
     end
   end
 
-  private
+  protected
   def likely_zero_element_for(c)
     i = c.first
     case i
