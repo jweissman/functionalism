@@ -278,7 +278,7 @@ describe Proc do
   end
 
   context '.to_s' do
-    it 'should identify known functions' do
+    it 'should identify known axiomatic functions' do
       expect(Identity.to_s).to eq('Identity')
       expect(Fold.to_s).to eq('Fold')
     end
@@ -288,13 +288,15 @@ describe Proc do
       expect(Initial.to_s).to eq("Compose[Reverse, Rest, Reverse]")
     end
 
-    it 'should identify partially-applied folds and maps' do
+    it 'should identify partially-applied filters, folds and maps' do
       expect(Fold[Successor].to_s).to eq("Fold[Succ]")
       expect(Map[Identity].to_s).to eq("Map[Identity]")
+      expect(Filter[:even?].to_s). to eq("Filter[even?]")
     end
 
-    it 'should not identify unidentifiable functions' do
-      expect(:+.(1).to_s).not_to be_empty
+    it 'should identify curried and procified symbols' do
+      expect(AsProc[:+].to_s).to eql('AsProc[+]')
+      expect(:+.(1).to_s).to eql("+[1]")
     end
   end
 end

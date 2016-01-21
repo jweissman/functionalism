@@ -2,7 +2,7 @@ module Functionalism
   Filter = lambda do |f|
     pr = Proc.new do |arr|
       reducer = lambda do |acc,x|
-        case AsProc[f][x] #f.to_proc[x]
+        case AsProc[f][x]
         when true then Cons[acc,x]
         when false then acc
         end

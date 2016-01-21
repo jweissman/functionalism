@@ -16,8 +16,11 @@ class Symbol
 
   # for currying procs
   def call(*args, &block)
-    lambda do |caller, *rest| 
-      caller.send(self, *rest, *args, &block)
-    end
+    f = self
+    pr = Proc.new do |caller|
+      caller.send(f, *args, &block)
+    end.curry
+    pr.name = "#{f.to_s}#{args}"
+    pr
   end
 end
