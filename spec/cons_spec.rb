@@ -28,7 +28,7 @@ describe Cons do
   describe "Foldl[Cons,[]]" do
     it 'is id for collections' do
       property_of { array(10) { branch :integer, :string, :float } }.check do |i|
-        expect(Foldl[Cons].([]).([i])).to eq(Identity[[i]])
+        expect(Foldl[Cons,[]].([i])).to eq(Identity[[i]])
       end
     end
   end

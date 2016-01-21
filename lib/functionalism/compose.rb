@@ -7,7 +7,7 @@ module Functionalism
 
   Compose = lambda do |fs|
     Proc.new("Compose[#{fs.map(&:to_s).join(', ')}]") do |*args|
-      Fold[Compose2, Identity][fs].(*args)
+      Fold[Compose2][fs].(*args)
     end
   end
 

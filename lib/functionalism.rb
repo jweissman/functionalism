@@ -80,7 +80,7 @@ module Functionalism
     ->(*args) { !f[*args] }
   end
 
-  Sum     = Fold[:+, 0]
+  Sum     = Fold[:+]
   Product = Fold[:*, 1]
 
   And     = Fold[->(a,b) { a && b }, true]

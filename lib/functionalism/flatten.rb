@@ -1,3 +1,3 @@
 module Functionalism
-  Flatten = Fold[:+, []]
+  Flatten = Fold[:+]
 end
