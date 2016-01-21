@@ -284,12 +284,12 @@ describe Proc do
     end
 
     it 'should identify composed functions' do
-      expect(Last.to_s).to eq("Compose2[First, Reverse]")
-      expect(Initial.to_s).to eq("Compose[Reverse, Rest, Reverse]")
+      expect(Last.to_s).to eq("Compose2[First, Fold[Cons]]")
+      expect(Initial.to_s).to eq("Compose[Fold[Cons], Rest, Fold[Cons]]")
     end
 
     it 'should identify partially-applied filters, folds, maps and zips' do
-      expect(Fold[Successor].to_s).to eq("Fold[Succ]")
+      expect(Fold[Successor,1].to_s).to eq("Fold[Succ]")
       expect(Map[Identity].to_s).to eq("Map[Identity]")
       expect(Mapr[Identity].to_s).to eq("Mapr[Identity]")
       expect(Filter[:even?].to_s). to eq("Filter[even?]")

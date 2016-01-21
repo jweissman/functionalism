@@ -9,7 +9,7 @@ module Functionalism
       end
 
       arr = arr.to_a if arr.is_a?(Range)
-      Reverse[Fold[reducer][[]][arr]]
+      Reverse[Fold[reducer,[]][arr]]
     end
   end
   Select = Filter

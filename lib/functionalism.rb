@@ -13,7 +13,7 @@ require 'functionalism/fold'
 require 'functionalism/flatten'
 require 'functionalism/filter'
 require 'functionalism/call'
-require 'functionalism/compose2'
+require 'functionalism/compose'
 require 'functionalism/successor'
 require 'functionalism/length'
 require 'functionalism/second'
@@ -80,11 +80,11 @@ module Functionalism
     ->(*args) { !f[*args] }
   end
 
-  Sum     = Fold[:+][0]
-  Product = Fold[:*][1]
+  Sum     = Fold[:+, 0]
+  Product = Fold[:*, 1]
 
-  And     = Fold[->(a,b) { a && b }][true]
-  Or      = Fold[->(a,b) { a || b }][false]
+  And     = Fold[->(a,b) { a && b }, true]
+  Or      = Fold[->(a,b) { a || b }, false]
 
   FunctionalSum = lambda do |*fs|
     lambda do |*args|

@@ -8,14 +8,12 @@ module Functionalism
   xtail :fold
   module_function(:fold)
 
-  Fold = lambda do |f|
-    Proc.new("Fold[#{f.to_s}]") do |i|
-      proc do |collection|
-        if collection.size == 0
-          i 
-        else
-          Functionalism.fold(f, AsProc[f].(i,First[collection]), Rest[collection])
-        end
+  Fold = lambda do |f,i|
+    Proc.new("Fold[#{f.to_s}]") do |collection|
+      if collection.size == 0
+        i 
+      else
+        Functionalism.fold(f, AsProc[f].(i,First[collection]), Rest[collection])
       end
     end
   end
@@ -24,5 +22,16 @@ module Functionalism
   Inject = Fold
   Reduce = Fold
 
-  Foldl = ->(f,i,collection) { Foldr[f][i][Reverse[collection]] }.curry
+  Foldl = ->(f,i,collection) { Foldr[f,i][Reverse[collection]] }.curry
+
+  # def likely_zero_element_for(c)
+  #   i = c.first
+  #   case i
+  #   when Hash then {}
+  #   when Array then []
+  #   when String then ""
+  #   when Numeric then 0
+  #   # when Proc then Identity # <--- could we use this to simplify fold impl or calls (or even display)...?
+  #   end
+  # end
 end
