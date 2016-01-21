@@ -1,5 +1,10 @@
 class Proc
-  attr_accessor :name
+  attr_reader :name
+
+  def initialize(name=nil,&blk)
+    @name = name
+    super(&blk)
+  end
 
   def inspect
     to_s

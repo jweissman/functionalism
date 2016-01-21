@@ -1,43 +1,6 @@
 require 'spec_helper'
 
 describe Functionalism do
-  describe "Zip" do
-    let(:a) { [1,2,3] }
-    let(:b) { [4,5,6] }
-
-    it 'weaves two arrays together' do
-      expect(Zip[a,b]).to eq([[1,4],[2,5],[3,6]])
-    end
-  end
-
-  describe "Unzip" do
-    let(:a) { [1,4] }
-    let(:b) { [2,5] }
-    let(:c) { [3,6] }
-
-    it 'weaves n-arrays together (inverse of Zip)' do
-      expect(Unzip[[a,b,c]]).to eq([[1,2,3],[4,5,6]])
-    end
-
-    it 'is the inverse of zip' do
-      expect(Unzip[Zip[a,b]]).to eq([a,b])
-    end
-  end
-
-  describe "Maximum" do
-    it 'finds the largest of a set' do
-      expect(Maximum[[1,2,3]]).to eq(3)
-      expect(Maximum[[8,12,14,16]]).to eq(16)
-    end
-  end
-
-  describe "Minimum" do
-    it 'finds the smallest of a set' do
-      expect(Minimum[[1,2,3]]).to eq(1)
-      expect(Minimum[[8,12,14,16]]).to eq(8)
-    end
-  end
-
   describe "Replicate" do
     it 'creates a list of length given by a first arg with items of the second arg' do
       expect(Replicate[2, 'a']).to eq(['a', 'a'])

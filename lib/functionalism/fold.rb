@@ -9,20 +9,20 @@ module Functionalism
   module_function(:fold)
 
   Fold = lambda do |f|
-    pr = Proc.new do |i,collection|
-      if collection.size == 0
-        i 
-      else
-        Functionalism.fold(f, AsProc[f].(i,First[collection]), Rest[collection])
+    Proc.new("Fold[#{f.to_s}]") do |i|
+      proc do |collection|
+        if collection.size == 0
+          i 
+        else
+          Functionalism.fold(f, AsProc[f].(i,First[collection]), Rest[collection])
+        end
       end
-    end.curry
-    pr.name = "Fold[#{f.to_s}]"
-    pr
+    end
   end
 
   Foldr  = Fold
   Inject = Fold
   Reduce = Fold
 
-  Foldl = ->(f,i,collection) { Foldr[f][i,Reverse[collection]] }.curry
+  Foldl = ->(f,i,collection) { Foldr[f][i][Reverse[collection]] }.curry
 end

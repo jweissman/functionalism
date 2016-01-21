@@ -8,83 +8,30 @@ require 'functionalism/extend/proc/naming'
 
 require 'functionalism/identity'
 require 'functionalism/iterate'
-
 require 'functionalism/first'
-
 require 'functionalism/fold'
-
 require 'functionalism/flatten'
 require 'functionalism/filter'
-
 require 'functionalism/call'
 require 'functionalism/compose2'
-
 require 'functionalism/successor'
 require 'functionalism/length'
-
 require 'functionalism/second'
-
 require 'functionalism/flip'
-
 require 'functionalism/splat'
-
 require 'functionalism/cons'
 require 'functionalism/cons_with'
-
 require 'functionalism/reverse'
-
 require 'functionalism/initial'
-
 require 'functionalism/list'
+require 'functionalism/map'
+require 'functionalism/zip_with'
+require 'functionalism/maximum'
 
 require 'functionalism/extend/proc'
 require 'functionalism/extend/symbol'
 
 module Functionalism
-  Map  = lambda do |f|
-    pr = Proc.new do |*args|
-      Foldl[ConsWith[f]].([]).(*args)
-    end
-    pr.name = "Map[#{f.to_s}]"
-    pr
-  end
-
-  Mapr = ->(f) {  Fold[ConsWith[f]].([]) }
-
-  ZipWith = lambda do |f, (a,*as), (b,*bs)|
-    return [f.(b,a)] if bs.empty? || as.empty?
-    Cons[ ZipWith[f][as,bs],  f.(b,a) ]
-  end.curry
-
-  Zip = ZipWith[Cons]
-
-  UnzipWith = lambda do |f,arrs|
-    fa = f.(*Map[First].(arrs))
-    rests = (Map[Rest].(arrs))
-    return [fa] if rests.any? { |rest| rest.empty? }
-    Cons[ UnzipWith[f][rests], fa ]
-  end.curry
-
-  Unzip = UnzipWith[List]
-
-  Max = lambda do |a,b|
-    a > b ? a : b
-  end
-
-  Min = lambda do |a,b|
-    a < b ? a : b
-  end
-
-  Maximum = lambda do |(a,*as)|
-    return a if as.empty?
-    Max[a, Maximum[as]]
-  end
-
-  Minimum = lambda do |(a,*as)|
-    return a if as.empty?
-    Min[a, Minimum[as]]
-  end
-
   Replicate = lambda do |n, a|
     return [] if n == 0
     Cons[Replicate[n-1][a], a]
@@ -180,13 +127,12 @@ module Functionalism
   end.curry
 
   AsProc = lambda do |f, name=nil|
-    pr = Proc.new do |*args|
+    Proc.new("AsProc[#{name || f.to_s}]") do |*args|
       f.to_proc.(*args)
     end
-    pr.name = "AsProc[#{name || f.to_s}]"
-    pr
   end
+
   Procify = Map[AsProc]
 
-  Detect = Compose2[Filter,First]
+  # Detect = Compose2[Filter,First] # fixme? :)
 end

@@ -288,10 +288,13 @@ describe Proc do
       expect(Initial.to_s).to eq("Compose[Reverse, Rest, Reverse]")
     end
 
-    it 'should identify partially-applied filters, folds and maps' do
+    it 'should identify partially-applied filters, folds, maps and zips' do
       expect(Fold[Successor].to_s).to eq("Fold[Succ]")
       expect(Map[Identity].to_s).to eq("Map[Identity]")
+      expect(Mapr[Identity].to_s).to eq("Mapr[Identity]")
       expect(Filter[:even?].to_s). to eq("Filter[even?]")
+      expect(ZipWith[Predecessor].to_s).to eq("ZipWith[Pred]")
+      expect(UnzipWith[Predecessor].to_s).to eq("UnzipWith[Pred]")
     end
 
     it 'should identify curried and procified symbols' do

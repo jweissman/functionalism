@@ -1,4 +1,6 @@
 class Proc
+  include Functionalism
+
   def each
     Map[self]
   end
@@ -56,6 +58,8 @@ class Proc
   end
   alias_method :<<, :foldr
   alias_method :fold, :foldr
+  alias_method :inject, :foldr
+  alias_method :reduce, :foldr
 
   def foldl(collection, initial: likely_zero_element_for(collection))
     Foldl[self][initial].(collection)
@@ -66,7 +70,6 @@ class Proc
     Iterate[self].(n)
   end
 
-
   private
   def likely_zero_element_for(c)
     i = c.first
@@ -75,6 +78,7 @@ class Proc
     when Array then []
     when String then ""
     when Numeric then 0
+    # when Proc then Identity # <--- could we use this to simplify fold impl or calls (or even display)...?
     end
   end
 end

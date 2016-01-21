@@ -1,6 +1,12 @@
 class Symbol
   extend Forwardable
-  def_delegators :to_proc, :|, :-@, :each
+  include Functionalism
+
+  def_delegators :to_proc, :|, :-@ #, :each
+
+  def each
+    Map[self]
+  end
 
   def as_method
     AsProc[binding.of_caller(1).eval "method(:#{self})", self.to_s + ".as_method"]
@@ -16,11 +22,8 @@ class Symbol
 
   # for currying procs
   def call(*args, &block)
-    f = self
-    pr = Proc.new do |caller|
-      caller.send(f, *args, &block)
-    end.curry
-    pr.name = "#{f.to_s}#{args}"
-    pr
+    Proc.new("#{self.to_s}#{args}") do |caller|
+      caller.send(self, *args, &block)
+    end
   end
 end
