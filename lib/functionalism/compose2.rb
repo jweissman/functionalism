@@ -1,10 +1,19 @@
 module Functionalism
   Compose2 = lambda do |fn,other_fn|
-    lambda do |*args|
-      Proc[other_fn].(Proc[fn].(*args))
+    pr = Proc.new do |*args|
+      AsProc[other_fn].(AsProc[fn].(*args))
     end
+    pr.name = "Compose2[#{other_fn.to_s}, #{fn.to_s}]"
+    pr
   end
 
-  Compose = Fold[Compose2][Identity]
+  Compose = lambda do |fs|
+    pr = Proc.new do |*args|
+      Fold[Compose2][Identity][fs].(*args)
+    end
+    pr.name = "Compose[#{fs.map(&:to_s).join(', ')}]"
+    pr
+  end
+
   Pipe = Compose
 end

@@ -282,5 +282,19 @@ describe Proc do
       expect(Identity.to_s).to eq('Identity')
       expect(Fold.to_s).to eq('Fold')
     end
+
+    it 'should identify composed functions' do
+      expect(Last.to_s).to eq("Compose2[First, Reverse]")
+      expect(Initial.to_s).to eq("Compose[Reverse, Rest, Reverse]")
+    end
+
+    it 'should identify partially-applied folds and maps' do
+      expect(Fold[Successor].to_s).to eq("Fold[Succ]")
+      expect(Map[Identity].to_s).to eq("Map[Identity]")
+    end
+
+    it 'should not identify unidentifiable functions' do
+      expect(:+.(1).to_s).not_to be_empty
+    end
   end
 end

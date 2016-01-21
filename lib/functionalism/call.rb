@@ -1,5 +1,5 @@
 module Functionalism
   Call = lambda do |f,args|
-    Proc[f].(*args)
+    AsProc[f].(*args)
   end.curry
 end

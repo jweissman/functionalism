@@ -4,6 +4,8 @@ require 'functionalism/version'
 
 require 'functionalism/support/tco'
 
+require 'functionalism/extend/proc/naming'
+
 require 'functionalism/identity'
 require 'functionalism/iterate'
 
@@ -39,7 +41,14 @@ require 'functionalism/extend/proc'
 require 'functionalism/extend/symbol'
 
 module Functionalism
-  Map  = ->(f) { Foldl[ConsWith[f]].([]) }
+  Map  = lambda do |f|
+    pr = Proc.new do |*args|
+      Foldl[ConsWith[f]].([]).(*args)
+    end
+    pr.name = "Map[#{f.to_s}]"
+    pr
+  end
+
   Mapr = ->(f) {  Fold[ConsWith[f]].([]) }
 
   ZipWith = lambda do |f, (a,*as), (b,*bs)|
@@ -87,7 +96,7 @@ module Functionalism
   end
 
   TakeWhile = lambda do |p, a|
-    return [] if !p.to_proc[First[a]]
+    return [] if !AsProc[p][First[a]]
     Cons[TakeWhile[p, Rest[a]], First[a]]
   end
 
@@ -97,7 +106,7 @@ module Functionalism
   end
 
   DropWhile = lambda do |p,(a,*as)|
-    if !p.to_proc[a]
+    if !AsProc[p][a]
       Cons[as,a]
     else
       DropWhile[p,as]
@@ -124,11 +133,11 @@ module Functionalism
     ->(*args) { !f[*args] }
   end
 
-  Sum     = Fold[:+, 0]
-  Product = Fold[:*, 1]
+  Sum     = Fold[:+][0]
+  Product = Fold[:*][1]
 
-  And     = Fold[->(a,b) { a && b }, true]
-  Or      = Fold[->(a,b) { a || b }, false]
+  And     = Fold[->(a,b) { a && b }][true]
+  Or      = Fold[->(a,b) { a || b }][false]
 
   FunctionalSum = lambda do |*fs|
     lambda do |*args|
@@ -157,7 +166,7 @@ module Functionalism
 
   Quicksort = lambda do |(x,*xs)|
     return [] if x.nil?
-    Quicksort[Filter[:<=.(x), xs]] + [ x ] + Quicksort[Filter[:>.(x),  xs]]
+    Quicksort[Filter[:<=.(x)][xs]] + [ x ] + Quicksort[Filter[:>.(x)][xs]]
   end
   QSort = Quicksort
 
@@ -170,8 +179,14 @@ module Functionalism
     [ Cons[xs_prime, x], xs_prime_prime ]
   end.curry
 
-  Proc = ->(f) { f.to_proc }
-  Procify = Map[Proc]
+  AsProc = lambda do |f, name=nil|
+    pr = Proc.new do |*args|
+      f.to_proc.(*args)
+    end
+    pr.name = "AsProc[#{name || f.to_s}]"
+    pr
+  end
+  Procify = Map[AsProc]
 
   Detect = Compose2[Filter,First]
 end

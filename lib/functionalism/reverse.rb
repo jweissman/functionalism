@@ -1,3 +1,3 @@
 module Functionalism
-  Reverse = Fold[Prepend,[]]
+  Reverse = Fold[Prepend][[]]
 end

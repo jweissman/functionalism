@@ -1,3 +1,3 @@
 module Functionalism
-  Length = Fold[Successor, 0]
+  Length = Fold[Successor][0]
 end

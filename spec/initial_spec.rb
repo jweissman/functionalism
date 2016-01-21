@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Initial do
+describe 'Initial' do
   it 'should return all but the last element of a collection' do
     expect(Initial.([1,2,3])).to eq([1,2])
   end
