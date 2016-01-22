@@ -289,7 +289,7 @@ describe Proc do
       expect(Filter[:even?].to_s). to eq("Foldl[FilterOne[even?]]")
     end
 
-    it 'should identify partially-applied filters, folds, maps and zips' do
+    it 'should identify partially-applied folds, maps and zips' do
       expect(Fold[Successor,1].to_s).to eq("Fold[Succ]")
       expect(Map[Identity].to_s).to eq("Map[Identity]")
       expect(Mapr[Identity].to_s).to eq("Mapr[Identity]")

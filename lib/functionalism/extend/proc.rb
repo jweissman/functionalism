@@ -29,12 +29,12 @@ class Proc
   alias_method :^, :functional_power
 
   def sum(g)
-    FunctionalSum[self,g]
+    FunctionalSum2[self,g]
   end
   alias_method :+, :sum
 
   def product(g)
-    FunctionalProduct[self,g]
+    FunctionalProduct2[self,g]
   end
   alias_method :*, :product
 
