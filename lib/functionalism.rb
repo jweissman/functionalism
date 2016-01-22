@@ -46,18 +46,26 @@ require 'functionalism/extend/proc'
 require 'functionalism/extend/symbol'
 
 module Functionalism
-  # this has got to be expressible as a fold right?
-  Recurse = lambda do |operation, fn, n|
-    case n
-    when 0 then Identity
-    when 1 then fn
-    else
-      operation[fn, Recurse[operation, fn, n-1]]
+  Exp = ->(fn) do
+    Proc.new("Exp[#{fn.to_s}]") do |n|
+      if n == 0
+        Identity
+      else
+        Fold[FunctionalProduct2,One].(Replicate[n,fn])
+      end
     end
-  end.curry
+  end
+  Exponentiate = Exp
 
-  Exponentiate = Recurse[FunctionalProduct2]
-  FunctionalPower = Recurse[Compose2]
+  FunctionalPower = ->(fn) do
+    Proc.new("FunctionalPower[#{fn.to_s}]") do |n|
+      if n == 0
+        Identity
+      else
+        Fold[Compose2,Identity].(Replicate[n,fn])
+      end
+    end
+  end
 
   AsProc = lambda do |f, name=nil|
     Proc.new("AsProc[#{name || f.to_s}]") do |*args|
