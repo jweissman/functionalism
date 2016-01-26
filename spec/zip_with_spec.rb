@@ -19,7 +19,7 @@ describe 'Unzip' do
   end
 
   it 'is the inverse of zip' do
-    property_of { array(2) { integer }}.check do |(a,b)|
+    property_of { array(2) { array(10) { integer } }}.check do |(a,b)|
       expect(Unzip[Zip[a,b]]).to eq([a,b])
     end
   end

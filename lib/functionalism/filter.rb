@@ -8,6 +8,6 @@ module Functionalism
     end
   end
 
-  Filter = ->(f) { Foldl[FilterOne[f], []] }
+  Filter = ->(f) { Compose2[ Reverse, Fold[FilterOne[f], []] ] }
   Select = Filter
 end

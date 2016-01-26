@@ -279,20 +279,21 @@ describe Proc do
 
   context '.to_s' do
     it 'should identify known axiomatic functions' do
-      expect(Identity.to_s).to eq('Identity')
+      expect(Identity.to_s).to eq('Id')
       expect(Fold.to_s).to eq('Fold')
     end
 
     it 'should identify composed functions' do
       expect(Last.to_s).to eq("Compose2[First, Fold[Cons]]")
       expect(Initial.to_s).to eq("Compose[Fold[Cons], Rest, Fold[Cons]]")
-      expect(Filter[:even?].to_s). to eq("Foldl[FilterOne[even?]]")
+      expect(Filter[:even?].to_s). to eq("Compose2[Fold[FilterOne[even?]], Fold[Cons]]")
+        #"Foldl[FilterOne[even?]]")
     end
 
     it 'should identify partially-applied folds, maps and zips' do
       expect(Fold[Successor,1].to_s).to eq("Fold[Succ]")
-      expect(Map[Identity].to_s).to eq("Map[Identity]")
-      expect(Mapr[Identity].to_s).to eq("Mapr[Identity]")
+      expect(Map[Identity].to_s).to eq("Map[Id]")
+      expect(Mapr[Identity].to_s).to eq("Mapr[Id]")
       expect(ZipWith[Predecessor].to_s).to eq("ZipWith[Pred]")
       expect(UnzipWith[Predecessor].to_s).to eq("UnzipWith[Pred]")
     end

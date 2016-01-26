@@ -1,11 +1,13 @@
 module Functionalism
-  Iterate = lambda do |fn,i|
+  Enumerate = lambda do |fn, i|
     Enumerator.new do |y|
       val = i
       loop do
         y.yield(val)
-        val = fn.(val)
+        val = fn.call(val)
       end
     end
-  end.curry
+  end
+
+  Iterate = ->(fn,i) { Enumerate[Call[fn], i] }.curry
 end

@@ -1,7 +1,7 @@
 module Functionalism
-  Identity = lambda do |x|
+  Id = lambda do |x|
     x
   end
 
-  Id = Identity
+  Identity = Id
 end

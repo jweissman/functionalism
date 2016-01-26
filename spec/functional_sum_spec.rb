@@ -6,7 +6,7 @@ describe FunctionalSum2 do
   end
 end
 
-describe FunctionalSum do
+describe 'FunctionalSum' do
   it 'should sum the result of several functions' do
     property_of {integer}.check do |i|
       expect(FunctionalSum[[Double,Triple,Cube]].(i)).

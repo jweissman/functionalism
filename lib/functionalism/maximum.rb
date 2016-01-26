@@ -3,17 +3,23 @@ module Functionalism
     a > b ? a : b
   end
 
+  MaxBy = lambda do |f|
+    lambda do |a,b|
+      f[a] > f[b] ? a : b
+    end
+  end
+
   Min = lambda do |a,b|
     a < b ? a : b
   end
 
-  Maximum = lambda do |(a,*as)|
-    return a if as.empty?
-    Max[a, Maximum[as]]
+  MinBy = lambda do |f|
+    lambda do |a,b|
+      f[a] < f[b] ? a : b
+    end
   end
 
-  Minimum = lambda do |(a,*as)|
-    return a if as.empty?
-    Min[a, Minimum[as]]
-  end
+
+  MaximumBy = ->(f,i=nil) { Fold[MaxBy[f], i || -Infinity] }
+  MinimumBy = ->(f,i=nil) { Fold[MinBy[f], i || Infinity] }
 end

@@ -6,11 +6,24 @@ module Functionalism
   xtail :fold
   module_function(:fold)
 
+  def fold_enumerator(f,i,arr,y)
+    return i if arr.size == 0
+    y.yield(AsProc[f].(i,First[arr]))
+    fold(f, AsProc[f].(i,First[arr]), Rest[arr])
+  end
+
   Fold = lambda do |f,i=nil|
     Proc.new("Fold[#{f.to_s}]") do |collection|
       initial = i || likely_zero_element_for(collection)
       if collection.size == 0
         initial
+      elsif collection.is_a?(Enumerator)
+        # enumerate fold...
+        Enumerator.new do |y|
+          loop do
+            Functionalism.fold_enumerator(f, AsProc[f].(initial,First[collection]), Rest[collection], y)
+          end
+        end
       else
         Functionalism.fold(f, AsProc[f].(initial,First[collection]), Rest[collection])
       end

@@ -14,11 +14,18 @@ module Functionalism
     Drop[n-1, Rest[a]]
   end
 
-  DropWhile = lambda do |p,(a,*as)|
-    if !AsProc[p][a]
-      Cons[as,a]
-    else
-      DropWhile[p,as]
+  DropWhile = lambda do |p|
+    lambda do |arr| #(a,*as)|
+      a,as = First[arr], Rest[arr]
+      if !AsProc[p][a]
+        Cons[as,a]
+      else
+        DropWhile[p][as]
+      end
     end
   end
+
+  # DropUntil = lambda do |p|
+  #   DropWhile[Negate[p]]
+  # end
 end

@@ -5,4 +5,10 @@ describe Filter do
     expect(Filter[:integer?].([1,1.2,4,5,8])).to eq([1,4,5,8])
     expect((Filter[:odd?] | Sum).(1..100) ).to eq(2500)
   end
+
+  it 'should work for arrays of arrays' do
+    long = ->(xs) { Length[xs] > 2 }
+    arr = [ [ 1, 2, 3 ], [ 4 ], [ 5, 6 ] ]
+    expect( Filter[long].(arr) ).to eq([[1,2,3]])
+  end
 end

@@ -1,6 +1,9 @@
 module Functionalism
-  Replicate = lambda do |n, a|
-    return [] if n == 0
-    Cons[Replicate[n-1][a], a]
-  end.curry
+  ReplicatorFor = lambda do |a|
+    Fold[ConsWith[Constant[a]],[]]
+  end
+
+  Replicate = lambda do |n,a|
+    n == 0 ? [] : ReplicatorFor[a].(0..n)
+  end
 end

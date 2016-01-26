@@ -12,6 +12,7 @@ require 'functionalism/first'
 require 'functionalism/fold'
 require 'functionalism/flatten'
 require 'functionalism/filter'
+require 'functionalism/detect'
 require 'functionalism/call'
 require 'functionalism/compose'
 require 'functionalism/successor'
@@ -39,34 +40,17 @@ require 'functionalism/product'
 require 'functionalism/constant'
 require 'functionalism/functional_sum'
 require 'functionalism/functional_product'
+require 'functionalism/exponentiate'
+require 'functionalism/functional_power'
+
 require 'functionalism/quicksort'
 require 'functionalism/split_at'
+
 
 require 'functionalism/extend/proc'
 require 'functionalism/extend/symbol'
 
 module Functionalism
-  Exp = ->(fn) do
-    Proc.new("Exp[#{fn.to_s}]") do |n|
-      if n == 0
-        Identity
-      else
-        Fold[FunctionalProduct2,One].(Replicate[n,fn])
-      end
-    end
-  end
-  Exponentiate = Exp
-
-  FunctionalPower = ->(fn) do
-    Proc.new("FunctionalPower[#{fn.to_s}]") do |n|
-      if n == 0
-        Identity
-      else
-        Fold[Compose2,Identity].(Replicate[n,fn])
-      end
-    end
-  end
-
   AsProc = lambda do |f, name=nil|
     Proc.new("AsProc[#{name || f.to_s}]") do |*args|
       f.to_proc.(*args)
@@ -75,9 +59,43 @@ module Functionalism
 
   Procify = Map[AsProc]
 
-  # Detect = Compose2[Filter,First] # fixme? :)
+  Halve = :*.(0.5)
   Double = :*.(2)
   Triple = :*.(3)
+  Quadruple = :*.(4)
+
   Square = :**.(2)
   Cube   = :**.(3)
+
+  Infinity = 1.0/0
+  Maximum = Fold[Max,-Infinity]
+  Minimum = Fold[Min,Infinity]
+
+  # hmmm, this is basically Iterate[Constant[value]]
+  class InfiniteSet < Struct.new(:value)
+    def size
+      Infinity
+    end
+
+    def first
+      value
+    end
+
+    def rest
+      InfiniteSet.new
+    end
+  end
+
+  # each element and its pred as pair
+  Pairwise = lambda do |arr|
+    Zip[Drop[1,arr], arr]
+  end
+  
+  PairMatches = ->((a,b)) { a == b }
+
+  FixedPoint = lambda do |f,initial|
+    First[First[
+      DropWhile[Negate[PairMatches]][Pairwise[Iterate[f,initial]]]
+    ]]
+  end
 end

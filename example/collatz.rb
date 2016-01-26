@@ -1,3 +1,6 @@
+require 'functionalism'
+include Functionalism
+
 Collatz = lambda do |n|
   return [1] if n == 1
   if n.even?
@@ -8,3 +11,8 @@ Collatz = lambda do |n|
 end
 
 Hailstones = Map[Collatz]
+LargestHailstone = Hailstones | MaximumBy[Length]
+
+if __FILE__==$0
+  p LargestHailstone.(1..10_000)
+end
