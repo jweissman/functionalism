@@ -23,7 +23,21 @@ class Symbol
   # for currying procs
   def call(*args, &block)
     Proc.new("#{self.to_s}#{args}") do |caller|
-      caller.send(self, *args, &block)
+      result = nil
+
+      quietly do
+        result = caller.send(self, *args, &block)
+      end
+
+      result
     end
+  end
+
+  protected
+  def quietly(&blk)
+    old_verbosity = $VERBOSE
+    $VERBOSE = nil
+    yield
+    $VERBOSE = old_verbosity
   end
 end

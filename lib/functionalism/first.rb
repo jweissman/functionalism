@@ -11,8 +11,8 @@ module Functionalism
       collection.lazy.drop(1)
     elsif collection.is_a?(Range)
       ((collection.begin+1)...collection.end)
-    elsif collection.is_a?(InfiniteSet)
-      InfiniteSet.new
+    # elsif collection.is_a?(InfiniteSet)
+    #   InfiniteSet.new
     else
       collection[1..-1]
     end

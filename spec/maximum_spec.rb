@@ -11,15 +11,15 @@ describe 'Maximum' do
     expect(Minimum[[8,12,14,16]]).to eq(8)
   end
 
-  # we should NEED to provide some of these comparator examples, right?
-  # can't we pick 'current_min' as the *first* value anyway?
-  # fold doesn't 'work' that way?
   describe "MaximumBy" do
     it 'is a higher-order version that takes a measurement function' do
-      expect(MaximumBy[Length, ''].(%w[ hi there ]) ).to eq( 'there' )
-      expect(MaximumBy[Length,[]].([ [1], [2,3] ]) ).to eq( [2,3] )
-      expect(MinimumBy[Length,InfiniteSet.new].([ [1], [2,3] ]) ).to eq( [1] )
-      expect(MinimumBy[Length,InfiniteSet.new].(%w[ hi there ]) ).to eq( 'hi' )
+      expect(MaximumBy[Length].([ [1], [2,3] ]) ).to eq( [2,3] )
+      expect(MaximumBy[Length].(%w[ hi there ]) ).to eq( 'there' )
+    end
+
+    it 'has an antonym (MinimumBy)' do
+      expect(MinimumBy[Length].(%w[ hi there ]) ).to eq( 'hi' )
+      expect(MinimumBy[Length].([ [1], [2,3] ]) ).to eq( [1] )
     end
   end
 end

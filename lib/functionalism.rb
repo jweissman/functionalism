@@ -42,13 +42,15 @@ require 'functionalism/functional_sum'
 require 'functionalism/functional_product'
 require 'functionalism/exponentiate'
 require 'functionalism/functional_power'
-
 require 'functionalism/quicksort'
 require 'functionalism/split_at'
-
+require 'functionalism/pairwise'
+require 'functionalism/tap'
 
 require 'functionalism/extend/proc'
 require 'functionalism/extend/symbol'
+
+require 'functionalism/fixed_point'
 
 module Functionalism
   AsProc = lambda do |f, name=nil|
@@ -68,38 +70,19 @@ module Functionalism
   Cube   = :**.(3)
 
   Infinity = 1.0/0
-  Maximum = Fold[Max,-Infinity]
-  Minimum = Fold[Min,Infinity]
-
+  # InfiniteSet = Iterate [Constant[value]]
   # hmmm, this is basically Iterate[Constant[value]]
-  class InfiniteSet < Struct.new(:value)
-    def size
-      Infinity
-    end
+  # class InfiniteSet < Struct.new(:value)
+  #   def size
+  #     Infinity
+  #   end
 
-    def first
-      value
-    end
+  #   def first
+  #     value
+  #   end
 
-    def rest
-      InfiniteSet.new
-    end
-  end
-
-  # each element and its pred as pair
-  Pairwise = lambda do |arr|
-    Zip[Drop[1,arr], arr]
-  end
-
-  PairMatches = ->((a,b)) { a == b }
-
-  FixedPoint = Iterate | Pairwise | Detect[PairMatches] | First
-
-  Tap = lambda do |f|
-    lambda do |args|
-      AsProc[f].(args)
-      args
-    end
-  end
-  Tee = Tap
+  #   def rest
+  #     InfiniteSet.new
+  #   end
+  # end
 end

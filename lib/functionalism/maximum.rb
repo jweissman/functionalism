@@ -19,6 +19,9 @@ module Functionalism
     end
   end
 
-  MaximumBy = ->(f,i=nil) { Fold[MaxBy[f], i || -Infinity] }
-  MinimumBy = ->(f,i=nil) { Fold[MinBy[f], i || Infinity] }
+  Maximum = Fold[Max]
+  Minimum = Fold[Min]
+
+  MaximumBy = ->(f) { Fold[MaxBy[f]] }
+  MinimumBy = ->(f) { Fold[MinBy[f]] }
 end

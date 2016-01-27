@@ -23,9 +23,9 @@ describe "Fold" do
   it 'should work over infinite sequences' do
     expect( Fold[:+,0].(Iterate[Successor,1]) ).to be_an(Enumerator)
 
-    expect( First[ Fold[:+,0].(Iterate[Successor,1]) ] ).to eq(1)
-    expect( Second[ Fold[:+,0].(Iterate[Successor,1]) ] ).to eq(3)
-    expect( Take[2, Fold[:+,0].(Iterate[Successor,1]) ] ).to eq([1,3])
-    expect( Take[5, Fold[:+,0].(Iterate[Successor,1]) ] ).to eq([1,3,6,10,15])
+    expect( First[ Fold[:+].(Iterate[Successor,1]) ] ).to eq(3)
+    expect( Second[ Fold[:+].(Iterate[Successor,1]) ] ).to eq(6)
+    expect( Take[2, Fold[:+].(Iterate[Successor,1]) ] ).to eq([3,6])
+    expect( Take[5, Fold[:+].(Iterate[Successor,1]) ] ).to eq([3,6,10,15,21])
   end
 end

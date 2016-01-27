@@ -23,10 +23,18 @@ module Functionalism
         initial
       elsif collection.is_a?(Enumerator)
         Enumerator.new do |y|
-          Functionalism.fold_enumerator(y, f, initial, collection)
+          Functionalism.fold_enumerator(y, f, First[collection], Rest[collection])
         end
       else
-        Functionalism.fold(f, AsProc[f].(initial,First[collection]), Rest[collection])
+        if i.nil?
+          Functionalism.fold(f, 
+                             First[collection],
+                             Rest[collection])
+        else
+          Functionalism.fold(f, 
+                             AsProc[f].(i,First[collection]), 
+                             Rest[collection])
+        end
       end
     end
   end
