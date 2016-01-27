@@ -8,14 +8,10 @@ module Functionalism
 
   def fold_enumerator(y,f,i,enum)
     return i if enum.size == 0
-
     val = AsProc[f].(i,First[enum])
-    # binding.pry
-    # p [:fold_enum, f, i, enum, vals: val]
     if val != []
       y.yield(*val) 
     end
-
     fold_enumerator(y, f, val, Rest[enum])
   end
   xtail(:fold_enumerator)
@@ -26,12 +22,8 @@ module Functionalism
       if collection.size == 0
         initial
       elsif collection.is_a?(Enumerator)
-        # enumerate fold...
         Enumerator.new do |y|
-          #loop do
           Functionalism.fold_enumerator(y, f, initial, collection)
-            # AsProc[f].(initial,First[collection]), Rest[collection], y)
-          #end
         end
       else
         Functionalism.fold(f, AsProc[f].(initial,First[collection]), Rest[collection])

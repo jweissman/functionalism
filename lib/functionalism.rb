@@ -90,9 +90,16 @@ module Functionalism
   Pairwise = lambda do |arr|
     Zip[Drop[1,arr], arr]
   end
+
   PairMatches = ->((a,b)) { a == b }
 
-  FixedPoint = lambda do |f,initial|
-    First[Detect[PairMatches][Pairwise[Iterate[f,initial]]]]
+  FixedPoint = Iterate | Pairwise | Detect[PairMatches] | First
+
+  Tap = lambda do |f|
+    lambda do |args|
+      AsProc[f].(args)
+      args
+    end
   end
+  Tee = Tap
 end

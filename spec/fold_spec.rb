@@ -27,6 +27,5 @@ describe "Fold" do
     expect( Second[ Fold[:+,0].(Iterate[Successor,1]) ] ).to eq(3)
     expect( Take[2, Fold[:+,0].(Iterate[Successor,1]) ] ).to eq([1,3])
     expect( Take[5, Fold[:+,0].(Iterate[Successor,1]) ] ).to eq([1,3,6,10,15])
-    # expect( Fold[:+,0].(Iterate[Successor,1]) ).to be_an(Enumerator)
   end
 end

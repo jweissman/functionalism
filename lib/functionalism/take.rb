@@ -1,10 +1,8 @@
 module Functionalism
   Take = lambda do |n, a|
     return [] if n == 0
-    # p [:take, n, a ]
-    fst = First[a]
     Flip[Prepend][
-      fst,
+      First[a],
       Take[n-1, Drop[1,a]]
     ]
   end
@@ -20,7 +18,7 @@ module Functionalism
   end
 
   DropWhile = lambda do |p|
-    lambda do |arr| #(a,*as)|
+    lambda do |arr|
       a,as = First[arr], Rest[arr]
       if !AsProc[p][a]
         Cons[as,a]
@@ -29,8 +27,4 @@ module Functionalism
       end
     end
   end
-
-  # DropUntil = lambda do |p|
-  #   DropWhile[Negate[p]]
-  # end
 end
