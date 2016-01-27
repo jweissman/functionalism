@@ -5,6 +5,10 @@ describe Take do
     expect(Take[1, %w[ hello world ]]).to eq(["hello"])
     expect(Take[2, [5,6,7,8,9,10]]).to eq([5,6])
   end
+
+  it 'works for infinite sequences' do
+    expect( Take[2, Iterate[Successor,1] ] ).to eq([1,2])
+  end
 end
 
 describe TakeWhile do

@@ -19,4 +19,14 @@ describe "Fold" do
 
     expect( Foldl[Compose2].([Sum,Filter[:even?]]).([2,3,4])).to eq(6)
   end
+
+  it 'should work over infinite sequences' do
+    expect( Fold[:+,0].(Iterate[Successor,1]) ).to be_an(Enumerator)
+
+    expect( First[ Fold[:+,0].(Iterate[Successor,1]) ] ).to eq(1)
+    expect( Second[ Fold[:+,0].(Iterate[Successor,1]) ] ).to eq(3)
+    expect( Take[2, Fold[:+,0].(Iterate[Successor,1]) ] ).to eq([1,3])
+    expect( Take[5, Fold[:+,0].(Iterate[Successor,1]) ] ).to eq([1,3,6,10,15])
+    # expect( Fold[:+,0].(Iterate[Successor,1]) ).to be_an(Enumerator)
+  end
 end

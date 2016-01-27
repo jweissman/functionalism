@@ -3,6 +3,7 @@ module Functionalism
     Enumerator.new do |y|
       val = i
       loop do
+        # p [:iterate, fn, val]
         y.yield(val)
         val = fn.call(val)
       end

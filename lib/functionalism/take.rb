@@ -1,7 +1,12 @@
 module Functionalism
   Take = lambda do |n, a|
     return [] if n == 0
-    Cons[Take[n-1, Rest[a]], First[a]]
+    # p [:take, n, a ]
+    fst = First[a]
+    Flip[Prepend][
+      fst,
+      Take[n-1, Drop[1,a]]
+    ]
   end
 
   TakeWhile = lambda do |p, a|

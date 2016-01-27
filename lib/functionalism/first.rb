@@ -7,7 +7,6 @@ module Functionalism
 
   Rest = lambda do |collection|
     collection = collection.chars if collection.is_a?(String)
-
     if collection.is_a?(Enumerator)
       collection.lazy.drop(1)
     elsif collection.is_a?(Range)

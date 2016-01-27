@@ -286,16 +286,15 @@ describe Proc do
     it 'should identify composed functions' do
       expect(Last.to_s).to eq("Compose2[First, Fold[Cons]]")
       expect(Initial.to_s).to eq("Compose[Fold[Cons], Rest, Fold[Cons]]")
-      expect(Filter[:even?].to_s). to eq("Compose2[Fold[FilterOne[even?]], Fold[Cons]]")
-        #"Foldl[FilterOne[even?]]")
     end
 
-    it 'should identify partially-applied folds, maps and zips' do
+    it 'should identify partially-applied folds, maps, filters and zips' do
       expect(Fold[Successor,1].to_s).to eq("Fold[Succ]")
       expect(Map[Identity].to_s).to eq("Map[Id]")
       expect(Mapr[Identity].to_s).to eq("Mapr[Id]")
       expect(ZipWith[Predecessor].to_s).to eq("ZipWith[Pred]")
       expect(UnzipWith[Predecessor].to_s).to eq("UnzipWith[Pred]")
+      expect(Filter[:even?].to_s). to eq("Filter[even?]")
     end
 
     it 'should identify curried and procified symbols' do

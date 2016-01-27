@@ -90,12 +90,9 @@ module Functionalism
   Pairwise = lambda do |arr|
     Zip[Drop[1,arr], arr]
   end
-  
   PairMatches = ->((a,b)) { a == b }
 
   FixedPoint = lambda do |f,initial|
-    First[First[
-      DropWhile[Negate[PairMatches]][Pairwise[Iterate[f,initial]]]
-    ]]
+    First[Detect[PairMatches][Pairwise[Iterate[f,initial]]]]
   end
 end
