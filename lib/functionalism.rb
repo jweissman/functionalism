@@ -70,19 +70,4 @@ module Functionalism
   Cube   = :**.(3)
 
   Infinity = 1.0/0
-  # InfiniteSet = Iterate [Constant[value]]
-  # hmmm, this is basically Iterate[Constant[value]]
-  # class InfiniteSet < Struct.new(:value)
-  #   def size
-  #     Infinity
-  #   end
-
-  #   def first
-  #     value
-  #   end
-
-  #   def rest
-  #     InfiniteSet.new
-  #   end
-  # end
 end

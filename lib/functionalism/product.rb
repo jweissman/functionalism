@@ -1,4 +1,4 @@
 module Functionalism
   Product2 = :*
-  Product  = Fold[:*, 1]
+  Product  = Fold[Product2]
 end

@@ -5,5 +5,5 @@ module Functionalism
     end
   end
 
-  FunctionalSum = Fold[FunctionalSum2,Zero]
+  FunctionalSum = Fold[FunctionalSum2]
 end

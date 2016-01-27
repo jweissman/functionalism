@@ -5,5 +5,5 @@ module Functionalism
     end
   end
 
-  FunctionalProduct = Fold[FunctionalProduct2,One]
+  FunctionalProduct = Fold[FunctionalProduct2]
 end
