@@ -12,7 +12,6 @@ require 'functionalism/first'
 require 'functionalism/fold'
 require 'functionalism/flatten'
 require 'functionalism/filter'
-require 'functionalism/detect'
 require 'functionalism/call'
 require 'functionalism/compose'
 require 'functionalism/successor'
@@ -50,17 +49,11 @@ require 'functionalism/tap'
 require 'functionalism/extend/proc'
 require 'functionalism/extend/symbol'
 
+require 'functionalism/procify'
+require 'functionalism/detect'
 require 'functionalism/fixed_point'
 
 module Functionalism
-  AsProc = lambda do |f, name=nil|
-    Proc.new("AsProc[#{name || f.to_s}]") do |*args|
-      f.to_proc.(*args)
-    end
-  end
-
-  Procify = Map[AsProc]
-
   Halve = :*.(0.5)
   Double = :*.(2)
   Triple = :*.(3)

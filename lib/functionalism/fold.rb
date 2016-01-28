@@ -10,7 +10,7 @@ module Functionalism
     return i if enum.size == 0
     val = AsProc[f].(i,First[enum])
     if val != []
-      y.yield(*val) 
+      y.yield(*val)
     end
     fold_enumerator(y, f, val, Rest[enum])
   end
@@ -27,12 +27,12 @@ module Functionalism
         end
       else
         if i.nil?
-          Functionalism.fold(f, 
+          Functionalism.fold(f,
                              First[collection],
                              Rest[collection])
         else
-          Functionalism.fold(f, 
-                             AsProc[f].(i,First[collection]), 
+          Functionalism.fold(f,
+                             AsProc[f].(i,First[collection]),
                              Rest[collection])
         end
       end
@@ -50,6 +50,16 @@ module Functionalism
         initial
       else
         Foldr[f,initial][Reverse[collection]]
+      end
+    end
+  end
+
+  Unfold = lambda do |f,i|
+    Enumerator.new do |y|
+      a,b = f.call(i)
+      loop do
+        y.yield(a)
+        a,b = f.call(b)
       end
     end
   end

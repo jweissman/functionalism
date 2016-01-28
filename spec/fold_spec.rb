@@ -28,4 +28,9 @@ describe "Fold" do
     expect( Take[2, Fold[:+].(Iterate[Successor,1]) ] ).to eq([3,6])
     expect( Take[5, Fold[:+].(Iterate[Successor,1]) ] ).to eq([3,6,10,15,21])
   end
+
+  it 'should have an inverse (Unfold)' do
+    fib = Unfold[->((a,b)) { [a+b,[b,b+a]] },[0,1]]
+    expect(Take[10, fib]).to eq([1,2,3,5,8,13,21,34,55,89])
+  end
 end
