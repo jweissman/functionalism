@@ -60,5 +60,12 @@ module Functionalism
         a,b = f.call(b)
       end
     end
-  end
+  end.curry
+
+  UnfoldStrict = lambda do |f,i|
+    TakeWhile[
+      Not[->((a,b)) { a.nil? || b.nil? }],
+      Unfold[f, i]
+    ]
+  end.curry
 end

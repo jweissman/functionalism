@@ -289,12 +289,10 @@ describe Proc do
       expect(FixedPoint.to_s).to eq("Compose[Iterate, Pairwise, Compose2[First, Filter[PairMatches]], First]")
     end
 
-    it 'should identify partially-applied folds, maps, filters and zips' do
+    it 'should identify partially-applied folds, maps and filters' do
       expect(Fold[Successor,1].to_s).to eq("Fold[Succ]")
       expect(Map[Identity].to_s).to eq("Map[Id]")
       expect(Mapr[Identity].to_s).to eq("Mapr[Id]")
-      expect(ZipWith[Predecessor].to_s).to eq("ZipWith[Pred]")
-      expect(UnzipWith[Predecessor].to_s).to eq("UnzipWith[Pred]")
       expect(Filter[:even?].to_s). to eq("Filter[even?]")
     end
 

@@ -57,6 +57,8 @@ module Functionalism
   All = ->(p) { Compose2[Map[p], And] }
   Any = ->(p) { Compose2[Map[p], Or] }
 
+  None = Compose2[Not, Any]
+
   Count = ->(p) { Compose2[Filter[p], Length] }
 
   Index = ->(arr,i,n=0) {
