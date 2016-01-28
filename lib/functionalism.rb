@@ -54,8 +54,20 @@ require 'functionalism/detect'
 require 'functionalism/fixed_point'
 
 module Functionalism
-  All = ->(p) { Compose2[Map[p],And] }
+  All = ->(p) { Compose2[Map[p], And] }
   Any = ->(p) { Compose2[Map[p], Or] }
+
+  Count = ->(p) { Compose2[Filter[p], Length] }
+
+  Index = ->(arr,i,n=0) {
+    if First[arr] == i
+      n
+    else
+      Index[Rest[arr], i, n+1]
+    end
+  }
+
+  Modulo2 = ->(a,b) { a % b }
 
   # Divide2 = :/
   # Modulo2 = :%
@@ -68,6 +80,7 @@ module Functionalism
   Double = :*.(2)
   Triple = :*.(3)
   # Quadruple = :*.(4)
+
   Square = :**.(2)
   Cube   = :**.(3)
 
