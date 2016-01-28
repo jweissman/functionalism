@@ -16,9 +16,8 @@ module Functionalism
   end
   xtail(:fold_enumerator)
 
-  Fold = lambda do |f,i=nil|
+  Fold = lambda do |f,initial=nil|
     Proc.new("Fold[#{f.to_s}]") do |collection|
-      initial = i || likely_zero_element_for(collection)
       if collection.size == 0
         initial
       elsif collection.is_a?(Enumerator)
@@ -26,13 +25,13 @@ module Functionalism
           Functionalism.fold_enumerator(y, f, First[collection], Rest[collection])
         end
       else
-        if i.nil?
+        if initial.nil?
           Functionalism.fold(f,
                              First[collection],
                              Rest[collection])
         else
           Functionalism.fold(f,
-                             AsProc[f].(i,First[collection]),
+                             AsProc[f].(initial,First[collection]),
                              Rest[collection])
         end
       end
@@ -43,9 +42,8 @@ module Functionalism
   Inject = Fold
   Reduce = Fold
 
-  Foldl = lambda do |f,i=nil|
+  Foldl = lambda do |f,initial=nil|
     Proc.new("Foldl[#{f.to_s}]") do |collection|
-      initial = i || likely_zero_element_for(collection)
       if collection.size == 0
         initial
       else
@@ -61,18 +59,6 @@ module Functionalism
         y.yield(a)
         a,b = f.call(b)
       end
-    end
-  end
-
-  protected
-  def likely_zero_element_for(c)
-    i = c.first
-    case i
-    when Hash then {}
-    when Array then []
-    when String then ""
-    when Numeric then 0
-    when Proc, Symbol then Identity
     end
   end
 end

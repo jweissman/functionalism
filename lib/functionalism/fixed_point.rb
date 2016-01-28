@@ -1,3 +1,3 @@
 module Functionalism
-  FixedPoint = Iterate | Pairwise | Detect[PairMatches] | First
+  FixedPoint = Compose[[Iterate, Pairwise, Detect[PairMatches], First]]
 end

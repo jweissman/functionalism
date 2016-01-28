@@ -54,7 +54,7 @@ class Proc
   alias_method :&, :filter
   alias_method :select, :filter
 
-  def foldr(collection, initial: likely_zero_element_for(collection))
+  def foldr(collection, initial: nil)
     Fold[self, initial].(collection)
   end
   alias_method :<<, :foldr
@@ -62,7 +62,7 @@ class Proc
   alias_method :inject, :foldr
   alias_method :reduce, :foldr
 
-  def foldl(collection, initial: likely_zero_element_for(collection))
+  def foldl(collection, initial: nil)
     Foldl[self, initial].(collection)
   end
   alias_method :>>, :foldl

@@ -1,7 +1,4 @@
 module Functionalism
-  Repeat = lambda do |e|
-    Enumerator.new do |y|
-      loop { y.yield(e) }
-    end
-  end
+  Repeat2 = ->(x) {[x,x]}
+  Repeat = ->(i) { Unfold[Repeat2,i] }
 end
