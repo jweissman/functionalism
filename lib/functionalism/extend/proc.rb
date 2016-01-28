@@ -54,6 +54,11 @@ class Proc
   alias_method :&, :filter
   alias_method :select, :filter
 
+  def detect(arr)
+    Detect[self].(arr)
+  end
+  alias_method :find, :detect
+
   def foldr(collection, initial: nil)
     Fold[self, initial].(collection)
   end
@@ -69,5 +74,9 @@ class Proc
 
   def iterate(n)
     Iterate[self].(n)
+  end
+
+  def fixed_point(n)
+    FixedPoint[self,n]
   end
 end

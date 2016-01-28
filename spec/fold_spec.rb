@@ -31,9 +31,7 @@ describe "Fold" do
 
   it 'should have an inverse (Unfold)' do
     fib_once = lambda do |(a,b)|
-      result = [ a + b, [ b, b + a ] ]
-      # p [ :fib_once, a: a, b: b, result: result ]
-      result
+      [ a + b, [ b, b + a ] ]
     end
     fib = Unfold[fib_once,[0,1]]
     expect(Take[10, fib]).to eq([1,2,3,5,8,13,21,34,55,89])

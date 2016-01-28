@@ -52,7 +52,14 @@ module Functionalism
     end
   end
 
-  Unfold = lambda do |f,i|
+  UnfoldStrict = lambda do |f,i|
+    TakeWhile[
+      Not[->((a,b)) { a.nil? || b.nil? }],
+      Unfold[f, i]
+    ]
+  end.curry
+
+  UnfoldLazy = lambda do |f,i|
     Enumerator.new do |y|
       a,b = f.call(i)
       loop do
@@ -60,12 +67,7 @@ module Functionalism
         a,b = f.call(b)
       end
     end
-  end.curry
+  end
 
-  UnfoldStrict = lambda do |f,i|
-    TakeWhile[
-      Not[->((a,b)) { a.nil? || b.nil? }],
-      Unfold[f, i]
-    ]
-  end.curry
+  Unfold = UnfoldLazy
 end

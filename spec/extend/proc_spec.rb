@@ -234,6 +234,20 @@ describe Proc do
     end
   end
 
+  context '.detect' do
+    let(:less_than_seven) { ->(x) {x<7} }
+
+    it 'should identify first element in collection matching predicate' do
+      expect(less_than_seven.detect([10,9,5,4])).to eq(5)
+    end
+
+    it 'should have a synonym (find)' do
+      needle = ->(x) { x == 'needle' }
+      haystack = %w[ a bunch of stuff but also a needle somewhere ]
+      expect(needle.find(haystack)).to eq('needle')
+    end
+  end
+
   context '.fold' do
     let(:f)  { :+.to_proc }
 
@@ -274,6 +288,16 @@ describe Proc do
 
     it 'should generate the infinite set of results' do
       expect( f.iterate(1).take(5) ).to eq([1,2,5,26,677])
+    end
+  end
+
+  context '.fixed_point' do
+    let(:f) do
+      ->(x) { (x**2) - (3*x) + 4 }
+    end
+
+    it 'should identify fixed points' do
+      expect( f.fixed_point(1) ).to eql(2)
     end
   end
 
