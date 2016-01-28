@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe FixedPoint do
+describe 'FixedPoint' do
   let(:polynomial_with_fixed_point) do
     ->(x) { (x**2) - (3*x) + 4 }
   end

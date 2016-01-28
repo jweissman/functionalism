@@ -18,7 +18,6 @@ require 'functionalism/successor'
 require 'functionalism/length'
 require 'functionalism/second'
 require 'functionalism/flip'
-require 'functionalism/splat'
 require 'functionalism/cons'
 require 'functionalism/cons_with'
 require 'functionalism/reverse'
@@ -45,6 +44,7 @@ require 'functionalism/quicksort'
 require 'functionalism/split_at'
 require 'functionalism/pairwise'
 require 'functionalism/tap'
+require 'functionalism/orbit'
 
 require 'functionalism/extend/proc'
 require 'functionalism/extend/symbol'
@@ -54,11 +54,20 @@ require 'functionalism/detect'
 require 'functionalism/fixed_point'
 
 module Functionalism
+  All = ->(p) { Compose2[Map[p],And] }
+  Any = ->(p) { Compose2[Map[p], Or] }
+
+  # Divide2 = :/
+  # Modulo2 = :%
+  # Equals = ->(a,b) { a == b }
+  # IsZero = ->(x) { Equals[0,x] }
+  # IsEven = Modulo2|IsZero
+  # IsOdd = Not[IsEven]
+
   Halve = :*.(0.5)
   Double = :*.(2)
   Triple = :*.(3)
-  Quadruple = :*.(4)
-
+  # Quadruple = :*.(4)
   Square = :**.(2)
   Cube   = :**.(3)
 

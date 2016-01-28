@@ -6,7 +6,7 @@ describe Pairwise do
   end
 
   it 'should work with infinite lists' do
-    expect(Take[3, Pairwise[Iterate[Square,2]]]).
+    expect(Take[3, Pairwise[Iterate[:**.(2), 2]]]).
       to eq([ [4,2], [16,4], [256, 16] ])
   end
 end

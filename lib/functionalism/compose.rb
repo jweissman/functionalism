@@ -5,7 +5,7 @@ module Functionalism
       partial_result = AsProc[fn].(*args)
       AsProc[other_fn].(partial_result)
     end
-  end
+  end.curry
 
   Compose = lambda do |fs|
     Proc.new("Compose[#{fs.map(&:to_s).join(', ')}]") do |*args|
