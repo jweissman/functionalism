@@ -6,6 +6,8 @@ require 'functionalism/support/tco'
 
 require 'functionalism/extend/proc/naming'
 
+require 'functionalism/logging'
+
 require 'functionalism/identity'
 require 'functionalism/first'
 require 'functionalism/successor'

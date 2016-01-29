@@ -1,5 +1,15 @@
 require 'spec_helper'
 
+describe 'ZipWith' do
+  let(:a) { [2,3,4] }
+  let(:b) { [3,4,5] }
+
+  it 'weaves array together and applies a function' do
+    expect(ZipWith[Sum2].(a,b)).to eq([5,7,9])
+    expect(ZipWith[->(x,y) { 2*x + y }].(1..4, 5..8)).to eq([7,10,13,16])
+  end
+end
+
 describe 'Zip' do
   let(:a) { [1,2,3] }
   let(:b) { [4,5,6] }

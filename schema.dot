@@ -1,6 +1,7 @@
 digraph Schema {
+  rankdir=LR;
+
   id [shape=box];
-  rest [shape=box];
   successor [shape=box];
   cons [shape=box];
   max [shape=box];
@@ -51,7 +52,6 @@ digraph Schema {
   unfold_strict -> zip;
 
   map -> unzip;
-  rest -> unzip;
   unfold -> unzip;
   unfold_strict -> unzip;
 
@@ -70,7 +70,6 @@ digraph Schema {
   drop -> take;
 
   cons -> take_while;
-  rest -> drop_while;
   cons -> drop_while;
 
   modulo -> cycle;
@@ -103,7 +102,8 @@ digraph Schema {
 
   filter -> quicksort;
 
-  cons -> split_at;
+  take -> split_at;
+  drop -> split_at;
 
   zip -> pairwise;
   drop -> pairwise;

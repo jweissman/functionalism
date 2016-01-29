@@ -1,5 +1,4 @@
 module Functionalism
-  # how to pass yields 'through'?
   Compose2 = lambda do |fn,other_fn|
     Proc.new("Compose2[#{other_fn.to_s}, #{fn.to_s}]") do |*args|
       partial_result = AsProc[fn].(*args)
