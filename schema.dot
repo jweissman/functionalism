@@ -44,6 +44,7 @@ digraph Schema {
   reverse -> last;
   compose -> last;
 
+  fold -> list;
   cons -> list;
 
   unfold -> zip;
