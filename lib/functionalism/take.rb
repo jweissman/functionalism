@@ -1,6 +1,6 @@
 module Functionalism
   Take = lambda do |n, a|
-    return [] if n == 0
+    return [] if n == 0 || a.nil?
     Flip[Prepend][
       First[a],
       Take[n-1, Drop[1,a]]
