@@ -1,3 +1,4 @@
+require 'pry'
 module TailCallOptimization
   RubyVM::InstructionSequence.compile_option = {
     :tailcall_optimization => true,
@@ -14,12 +15,8 @@ module TailCallOptimization
   end
 
   def xtail(method)
-    m = self.instance_method(method)
+    m = self.method(method)
     self.send(:undef_method, method)
     compile_with_tail(m.source)
   end
-end
-
-module Functionalism
-  extend TailCallOptimization
 end

@@ -14,5 +14,5 @@ Hailstones = Map[Collatz]
 LargestHailstone = Hailstones | MaximumBy[Length]
 
 if __FILE__==$0
-  p LargestHailstone.(1..10_000)
+  p LargestHailstone.(1..5_000)
 end

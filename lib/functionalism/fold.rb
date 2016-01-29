@@ -1,10 +1,12 @@
 module Functionalism
+  extend TailCallOptimization
+
   def fold(f,i,arr)
     return i if arr.size == 0
     fold(f, AsProc[f].(i,First[arr]), Rest[arr])
   end
-  xtail :fold
   module_function(:fold)
+  xtail :fold
 
   def fold_enumerator(y,f,i,enum)
     return i if enum.size == 0
@@ -14,6 +16,7 @@ module Functionalism
     end
     fold_enumerator(y, f, val, Rest[enum])
   end
+  module_function(:fold_enumerator)
   xtail(:fold_enumerator)
 
   Fold = lambda do |f,initial=nil|
@@ -52,13 +55,6 @@ module Functionalism
     end
   end
 
-  UnfoldStrict = lambda do |f,i|
-    TakeWhile[
-      Not[->((a,b)) { a.nil? || b.nil? }],
-      Unfold[f, i]
-    ]
-  end.curry
-
   UnfoldLazy = lambda do |f,i|
     Enumerator.new do |y|
       a,b = f.call(i)
@@ -67,7 +63,14 @@ module Functionalism
         a,b = f.call(b)
       end
     end
-  end
+  end.curry
+
+  UnfoldStrict = lambda do |f,i|
+    TakeWhile[
+      Not[->((a,b)) { a.nil? || b.nil? }],
+      UnfoldLazy[f, i]
+    ]
+  end.curry
 
   Unfold = UnfoldLazy
 end

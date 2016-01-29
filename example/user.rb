@@ -1,5 +1,3 @@
-require 'functionalism'
-
 class User
   class << self
     def authorized?(username)

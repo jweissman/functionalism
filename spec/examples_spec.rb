@@ -31,5 +31,9 @@ describe "Examples" do
         [[10,5,16,8,4,2,1],
          [11, 34, 17, 52, 26, 13, 40, 20, 10, 5, 16, 8, 4, 2, 1]])
     end
+
+    it 'should find the largest hailstone', speed: 'slow' do
+      expect(First[LargestHailstone.(1..5_000)]).to eq(3711)
+    end
   end
 end

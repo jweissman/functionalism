@@ -1,6 +1,4 @@
 require 'functionalism'
-
-include Functionalism
 require './example/user'
 
 class Greeting < Struct.new(:message)
