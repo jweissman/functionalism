@@ -1,4 +1,5 @@
 module Functionalism
+  # TODO fold?
   Take = lambda do |n, a|
     return [] if n == 0 || a.nil?
     Flip[Prepend][

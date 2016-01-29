@@ -4,7 +4,7 @@ module Functionalism
       if n == 0
         Identity
       else
-        Fold[Compose2,Identity].(Replicate[n,fn])
+        Fold[Compose2].(Replicate[n,fn])
       end
     end
   end

@@ -1,0 +1,121 @@
+digraph Schema {
+  id [shape=box];
+  rest [shape=box];
+  successor [shape=box];
+  cons [shape=box];
+  max [shape=box];
+  min [shape=box];
+  modulo [shape=box];
+  index [shape=box];
+  not [shape=box];
+  constant [shape=box];
+
+  reverse -> foldl;
+  fold -> foldl;
+
+  unfold -> iterate;
+  take_while -> unfold_strict;
+  not -> unfold_strict;
+  unfold -> unfold_strict;
+
+  fold -> flatten;
+
+  cons -> filter;
+  reverse -> filter;
+  fold -> filter;
+  compose -> filter;
+
+  fold -> compose;
+
+  fold -> length;
+  successor -> length;
+
+  compose -> second;
+
+  cons -> cons_with;
+  call -> cons_with;
+
+  fold -> reverse;
+  cons -> reverse;
+
+  compose -> initial;
+  reverse -> initial;
+
+  reverse -> last;
+  compose -> last;
+
+  cons -> list;
+
+  unfold -> zip;
+  unfold_strict -> zip;
+
+  map -> unzip;
+  rest -> unzip;
+  unfold -> unzip;
+  unfold_strict -> unzip;
+
+  fold -> maximum;
+  max -> maximum;
+
+  fold -> minimum;
+  min -> minimum;
+
+  fold -> replicate;
+  cons_with -> replicate;
+  constant -> replicate;
+
+  flip -> take;
+  cons -> take;
+  drop -> take;
+
+  cons -> take_while;
+  rest -> drop_while;
+  cons -> drop_while;
+
+  modulo -> cycle;
+  successor -> cycle;
+  index -> cycle;
+  length -> cycle;
+  unfold -> cycle;
+
+  unfold -> repeat;
+  fold -> and;
+  fold -> or;
+  fold -> sum;
+  fold -> product;
+
+  sum -> functional_sum;
+  fold -> functional_sum;
+
+  product -> functional_product;
+  fold -> functional_product;
+
+  functional_product -> exponentiate;
+  fold -> exponentiate;
+  replicate -> exponentiate;
+  id -> exponentiate;
+
+  id -> functional_power;
+  fold -> functional_power;
+  compose -> functional_power;
+  replicate -> functional_power;
+
+  filter -> quicksort;
+
+  cons -> split_at;
+
+  zip -> pairwise;
+  drop -> pairwise;
+
+  map -> orbit;
+  flip -> orbit;
+  call -> orbit;
+
+  compose -> detect;
+  filter -> detect;
+
+  compose -> fixed_point;
+  iterate -> fixed_point;
+  pairwise -> fixed_point;
+  detect -> fixed_point;
+}

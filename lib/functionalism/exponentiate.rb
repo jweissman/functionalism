@@ -4,7 +4,7 @@ module Functionalism
       if n == 0
         Identity
       else
-        Fold[FunctionalProduct2,One].(Replicate[n,fn])
+        Fold[FunctionalProduct2].(Replicate[n,fn])
       end
     end
   end

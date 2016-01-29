@@ -12,6 +12,7 @@ module Functionalism
     Proc.new("Filter[#{f.to_s}]") do |collection|
       if collection.is_a?(Enumerator)
         # create a new filtered enumerator *around* the 'inner' enumerator :/
+        # can this be written as unfold...?
         Enumerator.new do |y_prime|
           collection.each do |element|
             if AsProc[f][element]

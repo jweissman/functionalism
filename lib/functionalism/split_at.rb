@@ -1,4 +1,5 @@
 module Functionalism
+  # TODO fold?
   SplitAt = lambda do |n, arr|
     return [[],arr] if n == 0
     return [[],[]] if arr.empty?
