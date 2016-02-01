@@ -10,7 +10,6 @@ module Functionalism
     else
       arr_a = arr_a.to_a if arr_a.is_a?(Range)
       arr_b = arr_b.to_a if arr_b.is_a?(Range)
-
       UnfoldStrict[ ZipOnce, [arr_a, arr_b] ]
     end
   end
