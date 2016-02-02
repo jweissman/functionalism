@@ -10,11 +10,20 @@ class Token
 
   def self.find(chars)
     if matches?(chars.first)
-      token = new(chars.take_while(&method(:matches?)).join)
-      [ token, chars.drop_while(&method(:matches?)).join ]
+      if single_char?
+        x,*xs = *chars
+        [ new(x), xs.join ]
+      else
+        token = new(chars.take_while(&method(:matches?)).join)
+        [ token, chars.drop_while(&method(:matches?)).join ]
+      end
     else
       false
     end
+  end
+
+  def self.single_char?
+    true
   end
 
   def self.matches?(*)
@@ -24,6 +33,10 @@ end
 
 class NumericLiteral < Token
   attr_reader :value
+
+  def self.single_char?
+    false
+  end
 
   def self.matches?(ch)
     ch.match(/[0-9]/)
@@ -95,18 +108,23 @@ class Grammar
   def start; raise "Override Grammar#start in #{self.class.name}" end
 
   def recognize(tokens, key=start)
-    if rules[key].is_a?(Class)
+    if rules[key].is_a?(Class) 
       fst = tokens.first
-      if fst.is_a?(rules[key])
-        return fst 
+      if fst.is_a?(rules[key]) && tokens.size == 1
+        # p [ :recognize, key, tokens ]
+        return fst
       else
         return false
       end
     end
 
     rules[key].each do |elements|
-      if !(elements.is_a?(Array)) && (rec=recognize(tokens, elements))
+
+      if elements.is_a?(Symbol) && (rec=recognize(tokens, elements))
+        # p [ :recognize, key, tokens ]
         return rec
+        
+        # <left_operator> <middle_expression> <right_operator>
       elsif rules[elements[0]].is_a?(Class) && rules[elements[2]].is_a?(Class)
         left_to_find = rules[elements[0]]
         middle_to_find = elements[1]
@@ -116,32 +134,31 @@ class Grammar
         next unless left.is_a?(left_to_find) && right.is_a?(right_to_find)
 
         middle_expr = recognize(tokens[1..-2], middle_to_find)
-        raise "Invalid inner expression #{middle_to_find} in #{tokens[1..-2]}" unless middle_expr
+        next unless middle_expr
+        # raise "Invalid inner expression #{middle_to_find} in #{tokens[1..-2]}" unless middle_expr
 
-        p [ :recognize, key, tokens ]
-
-        # it's known to be a subexpression, so we don't even need to extend the tree...
-        # could be other things at some point but...
+        p [ :recognize, key: key, tokens: tokens, elements: elements, left: left, right: right ]
         return middle_expr
 
+        # <left_operand> <binary_op> <right_operand>
       elsif rules[elements[1]].is_a?(Class)
         left_to_find = elements[0]
         op_to_find = rules[elements[1]] # we want the class
         right_to_find = elements[2]
 
         i = tokens.rindex { |o| o.is_a?(op_to_find) }
-        next unless i && i > 0
+        next unless i && i > 0 # && i < tokens.length-1
 
         found_op = tokens[i]
         left,right = tokens.take(i), tokens.drop(i+1)
 
-        left_rec = recognize(left, left_to_find)
-        right_rec = recognize(right, right_to_find)
+        left_operand = recognize(left, left_to_find)
+        right_operand = recognize(right, right_to_find)
 
-        next unless left_rec && right_rec
+        next unless left_operand && right_operand
 
-        p [ :recognize, key, tokens ]
-        return { found_op => { left:  left_rec, right: right_rec }}
+        p [ :recognize, key: key, tokens: tokens, elements: elements, left: left_operand, right: right_operand ]
+        return { found_op => { left: left_operand, right: right_operand }}
       end
     end
 
@@ -188,17 +205,19 @@ class Parser
 
   protected
   def reduce(ast)
+    p [ :reduce, ast ]
     return nil if ast.nil?
     return ast.value.to_i if ast.is_a?(NumericLiteral)
-
-    p [:reduce, ast]
 
     op = ast.keys.first
     root = ast[op]
     l,r = root[:left], root[:right]
 
     # assume op is arithmetic...
-    op.apply(reduce(l), reduce(r))
+    result = op.apply(reduce(l), reduce(r))
+    
+    p [:reduce, ast, result: result]
+    result
   end
 
   def tokenize(expr)

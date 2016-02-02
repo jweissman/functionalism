@@ -12,10 +12,15 @@ describe Parser do
     expect(parser.evaluate("2-3+4")).to eq("3")
   end
 
-  it 'should parse expressions with * and /' do
+  it 'should parse expressions with a single * or /' do
     expect(parser.evaluate("2*2+4")).to eq("8")
     expect(parser.evaluate("2+2*4")).to eq("10")
     expect(parser.evaluate("2*3+2*4")).to eq("14")
+    expect(parser.evaluate("4/2")).to eq("2")
+  end
+
+  it 'should parse expressions with multiple * or /' do
+    expect(parser.evaluate("4*5/2")).to eq("10")
   end
 
   it 'should parse parens on the left' do
@@ -33,7 +38,13 @@ describe Parser do
     expect(parser.evaluate("(4+5)*(10-5+2)")).to eq("63")
   end
 
-  xit 'should parse nested parens' do
+  it 'should parse nested parens' do
+    # expect(parser.evaluate("(3)")).to eq("3")
+    # expect(parser.evaluate("((3))")).to eq("3")
+    expect(parser.evaluate("((3+1)+2)")).to eq("6")
+  end
+
+  it 'should parse complex expressions with nested parens' do
     expect(parser.evaluate("(1+2)*(4/(3-1))")).to eq("6")
   end
 end
