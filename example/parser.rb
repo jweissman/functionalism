@@ -8,7 +8,7 @@ class Token
 
   def inspect; @value end
 
-  def self.find(chars)
+  def self.partition(chars)
     if matches?(chars.first)
       if single_char?
         x,*xs = *chars
@@ -108,10 +108,9 @@ class Grammar
   def start; raise "Override Grammar#start in #{self.class.name}" end
 
   def recognize(tokens, key=start)
-    if rules[key].is_a?(Class) 
+    if rules[key].is_a?(Class)
       fst = tokens.first
       if fst.is_a?(rules[key]) && tokens.size == 1
-        # p [ :recognize, key, tokens ]
         return fst
       else
         return false
@@ -119,11 +118,8 @@ class Grammar
     end
 
     rules[key].each do |elements|
-
       if elements.is_a?(Symbol) && (rec=recognize(tokens, elements))
-        # p [ :recognize, key, tokens ]
         return rec
-        
         # <left_operator> <middle_expression> <right_operator>
       elsif rules[elements[0]].is_a?(Class) && rules[elements[2]].is_a?(Class)
         left_to_find = rules[elements[0]]
@@ -135,19 +131,17 @@ class Grammar
 
         middle_expr = recognize(tokens[1..-2], middle_to_find)
         next unless middle_expr
-        # raise "Invalid inner expression #{middle_to_find} in #{tokens[1..-2]}" unless middle_expr
 
         p [ :recognize, key: key, tokens: tokens, elements: elements, left: left, right: right ]
         return middle_expr
 
-        # <left_operand> <binary_op> <right_operand>
       elsif rules[elements[1]].is_a?(Class)
         left_to_find = elements[0]
         op_to_find = rules[elements[1]] # we want the class
         right_to_find = elements[2]
 
         i = tokens.rindex { |o| o.is_a?(op_to_find) }
-        next unless i && i > 0 # && i < tokens.length-1
+        next unless i && i > 0
 
         found_op = tokens[i]
         left,right = tokens.take(i), tokens.drop(i+1)
@@ -192,21 +186,33 @@ class ArithmeticGrammar < Grammar
   end
 end
 
+ConsumeOnce = lambda do |string|
+  return if string.empty?
+
+  # i.e., which one of these has the right lookahead/predictor? (i.e., can parse the next sym/set of syms?)
+  TokenList.
+    map { |grammatical_part| grammatical_part.partition(string.chars) }.
+    detect { |t| !!t }
+end
+
+Tokenize = UnfoldStrict[ConsumeOnce] #, string]
 
 class Parser
-  def evaluate(expr)
-    grammar = ArithmeticGrammar.new
-    tokens = tokenize(expr)
+  def evaluate(string)
+    tokens = Tokenize[string]
     p [ :evaluate, tokens: tokens ]
     expression = grammar.recognize(tokens)
     p [ :evaluate, expression: expression ]
     reduce(expression).to_s
+  rescue => ex
+    puts ex.message
+    puts ex.backtrace
+
+    "Sorry, but I could not parse '#{string}' (#{ex.message})"
   end
 
   protected
   def reduce(ast)
-    p [ :reduce, ast ]
-    return nil if ast.nil?
     return ast.value.to_i if ast.is_a?(NumericLiteral)
 
     op = ast.keys.first
@@ -215,34 +221,22 @@ class Parser
 
     # assume op is arithmetic...
     result = op.apply(reduce(l), reduce(r))
-    
     p [:reduce, ast, result: result]
     result
   end
 
-  def tokenize(expr)
-    tokens = []
-    remaining = expr
-    until (next_token, remaining = consume(remaining)).nil?
-      tokens.push next_token
-    end
-    tokens
-  end
-
-  def consume(expr)
-    return nil if expr.empty?
-
-    result = TokenList.
-      map { |token_kind| token_kind.find(expr.chars) }.
-      detect { |t| !!t } # first non-false (we found a token)
-
-    result
+  private
+  def grammar
+    @grammar ||= ArithmeticGrammar.new
   end
 end
 
 class Repl
-  def activate!
-    puts "repl"
+  def self.activate!
+    new.run
+  end
+
+  def run
     while true
       print "   > "
       expr = gets.chomp
@@ -256,4 +250,4 @@ class Repl
   end
 end
 
-Repl.new.activate! if __FILE__==$0
+Repl.activate! if __FILE__==$0

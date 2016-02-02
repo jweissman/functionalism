@@ -1,5 +1,16 @@
 require 'example_helper'
 
+describe 'Tokenize' do
+  it 'should tokenize a string' do
+    property_of { array(2) { i=integer; guard i>0; i } }.check do |(i,j)|
+      expr = "#{i}+#{j}"
+      tokens = Tokenize.(expr)
+      concatted_tokens = tokens.map(&:inspect).join
+      expect(concatted_tokens).to eq(expr)
+    end
+  end
+end
+
 describe Parser do
   subject(:parser) { Parser.new }
 
@@ -39,8 +50,6 @@ describe Parser do
   end
 
   it 'should parse nested parens' do
-    # expect(parser.evaluate("(3)")).to eq("3")
-    # expect(parser.evaluate("((3))")).to eq("3")
     expect(parser.evaluate("((3+1)+2)")).to eq("6")
   end
 

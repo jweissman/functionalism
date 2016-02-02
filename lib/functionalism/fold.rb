@@ -65,13 +65,14 @@ module Functionalism
     end
   end.curry
 
-  EitherMemberOfTupleIsNil = lambda do |(a,b)|
-    a.nil? || b.nil?
-  end
+  IsNull = ->(x) { x.nil? }
+  HasNulls = ->(a) { a.is_a?(Array) && Any[IsNull][a] }
+
+  IsNullOrHasNulls = ->(a) { IsNull[a] || HasNulls[a] }
 
   UnfoldStrict = lambda do |f,i|
     TakeWhile[
-      Not[EitherMemberOfTupleIsNil],
+      Not[IsNullOrHasNulls],
       UnfoldLazy[f, i]
     ]
   end.curry
