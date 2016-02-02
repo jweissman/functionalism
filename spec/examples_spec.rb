@@ -1,7 +1,6 @@
 require 'spec_helper'
 require 'pry'
 
-Dir["example/**/*.rb"].each(&method(:load))
 
 describe "Examples" do
   describe "examples/greeter.rb" do
@@ -34,19 +33,6 @@ describe "Examples" do
 
     it 'should find the largest hailstone', speed: 'slow' do
       expect(First[LargestHailstone.(1..5_000)]).to eq(3711)
-    end
-  end
-
-  describe "examples/parser.rb" do
-    subject(:parser) { Parser.new }
-    it 'should parse an expression' do
-      expect(parser.evaluate("2+2")).to eq("4")
-      expect(parser.evaluate("2+3+4")).to eq("9")
-      expect(parser.evaluate("2-3+4")).to eq("3")
-
-      expect(parser.evaluate("2*2+4")).to eq("8")
-      expect(parser.evaluate("2+2*4")).to eq("10")
-      expect(parser.evaluate("2*3+2*4")).to eq("14")
     end
   end
 end

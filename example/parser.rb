@@ -6,7 +6,7 @@ class Token
     @value = value
   end
 
-  def to_s; @value end
+  def inspect; @value end
 
   def self.find(chars)
     if matches?(chars.first)
@@ -76,22 +76,55 @@ class DivisionOperator < ArithmeticOperator
   end
 end
 
-TokenList = [ NumericLiteral, AdditionOperator, SubtractionOperator, MultiplicationOperator, DivisionOperator ]
+class LeftParenthesis < Token
+  def self.matches?(ch)
+    ch == '('
+  end
+end
+
+class RightParenthesis < Token
+  def self.matches?(ch)
+    ch == ')'
+  end
+end
+
+TokenList = [ NumericLiteral, AdditionOperator, SubtractionOperator, MultiplicationOperator, DivisionOperator, LeftParenthesis, RightParenthesis ]
 
 class Grammar
-  def recognize_expression(tokens)
-    recognize(start, tokens)
-  end
+  def rules; raise "Override Grammar#rules in #{self.class.name}" end
+  def start; raise "Override Grammar#start in #{self.class.name}" end
 
-  def recognize(key, tokens)
+  def recognize(tokens, key=start)
     if rules[key].is_a?(Class)
       fst = tokens.first
-      return fst if fst.is_a?(rules[key])
-    else # must be a composite thing...
-      rules[key].each do |elements|
-        return recognize(elements,tokens) if !(elements.is_a?(Array)) && recognize(elements, tokens)
+      if fst.is_a?(rules[key])
+        return fst 
+      else
+        return false
+      end
+    end
 
-        # need to find operator -- we know by inspection there have to be three keys here
+    rules[key].each do |elements|
+      if !(elements.is_a?(Array)) && (rec=recognize(tokens, elements))
+        return rec
+      elsif rules[elements[0]].is_a?(Class) && rules[elements[2]].is_a?(Class)
+        left_to_find = rules[elements[0]]
+        middle_to_find = elements[1]
+        right_to_find = rules[elements[2]]
+
+        left,right = tokens.first, tokens.last
+        next unless left.is_a?(left_to_find) && right.is_a?(right_to_find)
+
+        middle_expr = recognize(tokens[1..-2], middle_to_find)
+        raise "Invalid inner expression #{middle_to_find} in #{tokens[1..-2]}" unless middle_expr
+
+        p [ :recognize, key, tokens ]
+
+        # it's known to be a subexpression, so we don't even need to extend the tree...
+        # could be other things at some point but...
+        return middle_expr
+
+      elsif rules[elements[1]].is_a?(Class)
         left_to_find = elements[0]
         op_to_find = rules[elements[1]] # we want the class
         right_to_find = elements[2]
@@ -102,10 +135,13 @@ class Grammar
         found_op = tokens[i]
         left,right = tokens.take(i), tokens.drop(i+1)
 
-        next unless recognize(right_to_find, right) && recognize(left_to_find, left)
+        left_rec = recognize(left, left_to_find)
+        right_rec = recognize(right, right_to_find)
 
-        result = { found_op => { left: recognize(left_to_find, left), right: recognize(right_to_find, right) }}
-        return result
+        next unless left_rec && right_rec
+
+        p [ :recognize, key, tokens ]
+        return { found_op => { left:  left_rec, right: right_rec }}
       end
     end
 
@@ -117,22 +153,24 @@ end
 #
 # expr   -> expr + term | expr - term | term
 # term   -> term * factor | term / factor | factor
-# factor -> digits [ | (expr) ]
+# factor -> digits | (expr)
 #
 class ArithmeticGrammar < Grammar
   def start; :expr end
 
   def rules
     {
-      :expr => [ [:expr, :plus, :term], [:expr, :minus, :term], :term ],
-      :term => [ [:term, :times, :factor], [:term, :div, :factor], :factor ],
-      :factor => [ :digits ],
+      :expr   => [ %i[ expr plus term ], %i[ expr minus term ], :term ],
+      :term   => [ %i[ term times factor ], %i[ term div factor ], :factor ],
+      :factor => [ :digits, %i[ left_parens expr right_parens ]],
 
-      :plus => AdditionOperator,
-      :minus => SubtractionOperator,
-      :times => MultiplicationOperator,
-      :div => DivisionOperator,
-      :digits => NumericLiteral
+      :plus   => AdditionOperator,
+      :minus  => SubtractionOperator,
+      :times  => MultiplicationOperator,
+      :div    => DivisionOperator,
+      :digits => NumericLiteral,
+      :left_parens => LeftParenthesis,
+      :right_parens => RightParenthesis
     }
   end
 end
@@ -142,13 +180,18 @@ class Parser
   def evaluate(expr)
     grammar = ArithmeticGrammar.new
     tokens = tokenize(expr)
-    expression = grammar.recognize_expression(tokens)
+    p [ :evaluate, tokens: tokens ]
+    expression = grammar.recognize(tokens)
+    p [ :evaluate, expression: expression ]
     reduce(expression).to_s
   end
 
   protected
   def reduce(ast)
+    return nil if ast.nil?
     return ast.value.to_i if ast.is_a?(NumericLiteral)
+
+    p [:reduce, ast]
 
     op = ast.keys.first
     root = ast[op]
