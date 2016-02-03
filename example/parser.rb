@@ -8,20 +8,6 @@ class Token
 
   def inspect; @value end
 
-  def self.partition(chars)
-    if matches?(chars.first)
-      if single_char?
-        x,*xs = *chars
-        [ new(x), xs.join ]
-      else
-        token = new(chars.take_while(&method(:matches?)).join)
-        [ token, chars.drop_while(&method(:matches?)).join ]
-      end
-    else
-      false
-    end
-  end
-
   def self.single_char?
     true
   end
@@ -186,43 +172,58 @@ class ArithmeticGrammar < Grammar
   end
 end
 
-ConsumeOnce = lambda do |string|
-  return if string.empty?
-
-  # i.e., which one of these has the right lookahead/predictor? (i.e., can parse the next sym/set of syms?)
-  TokenList.
-    map { |grammatical_part| grammatical_part.partition(string.chars) }.
-    detect { |t| !!t }
+MatchOneToken = lambda do |token|
+  Proc.new("MatchOne[#{token}]") do |string|
+    chars = string.chars
+    if token.matches?(chars.first)
+      if token.single_char?
+        x,*xs = *chars
+        [ token.new(x), xs.join ]
+      else
+        [ token.new(chars.take_while { |ch| token.matches?(ch) }.join),
+          chars.drop_while { |ch| token.matches?(ch) }.join ]
+      end
+    end
+  end
 end
 
-Tokenize = UnfoldStrict[ConsumeOnce] #, string]
+Truthy = ->(x) { !!x }
+Matches = Orbit[Map[MatchOneToken][TokenList]]
 
-class Parser
-  def evaluate(string)
-    tokens = Tokenize[string]
-    p [ :evaluate, tokens: tokens ]
-    expression = grammar.recognize(tokens)
-    p [ :evaluate, expression: expression ]
-    reduce(expression).to_s
-  rescue => ex
-    puts ex.message
-    puts ex.backtrace
+ConsumeOnce = lambda do |string|
+  return if string.empty?
+  Detect[Truthy][Matches[string]]
+end
 
-    "Sorry, but I could not parse '#{string}' (#{ex.message})"
-  end
+Tokenize = UnfoldStrict[ConsumeOnce]
 
-  protected
-  def reduce(ast)
-    return ast.value.to_i if ast.is_a?(NumericLiteral)
-
+Synthesize = lambda do |ast|
+  if ast.is_a?(NumericLiteral)
+    ast.value.to_i
+  else
     op = ast.keys.first
     root = ast[op]
     l,r = root[:left], root[:right]
 
     # assume op is arithmetic...
-    result = op.apply(reduce(l), reduce(r))
-    p [:reduce, ast, result: result]
-    result
+    op.apply(Synthesize[l], Synthesize[r])
+  end
+end
+
+Parse = lambda do |grammar|
+  Proc.new("Parse") do |string|
+    Synthesize.(grammar.recognize(Tokenize[string])).to_s
+  end
+end
+
+class Parser
+  def evaluate(string)
+    Parse[grammar].(string)
+  rescue => ex
+    puts ex.message
+    puts ex.backtrace
+
+    "Sorry, but I could not parse '#{string}' (#{ex.message})"
   end
 
   private
