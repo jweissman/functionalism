@@ -13,8 +13,8 @@ describe Filter do
   end
 
   it 'should work for infinite sequences' do
-    # expect( Filter[:even?].(Iterate[Successor,1]) ).to be_an(Enumerator)
-    # expect( First[ Filter[:even?].(Iterate[Successor,1]) ] ).to eq([2])
+    expect( Filter[:even?].(Iterate[Successor,1]) ).to be_an(Enumerator)
+    expect( First[ Filter[:even?].(Iterate[Successor,1]) ] ).to eq(2)
     expect( Take[2, Filter[:even?].(Iterate[Successor,1])] ).to eq([2,4])
     expect( Take[5, Filter[:even?].(Iterate[Successor,1])]).to eq([2,4,6,8,10])
   end

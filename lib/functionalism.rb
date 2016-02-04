@@ -90,4 +90,18 @@ module Functionalism
   Cube   = :**.(3)
 
   Infinity = 1.0/0
+
+  Truthy = ->(x) { !!x }
+  FirstTruthySubelement = Compose[[ Flatten, Filter[Truthy], First ]]
+
+  IsA = lambda do |klass, obj|
+    obj.is_a?(klass)
+  end.curry
+
+  IsSymbol = IsA[Symbol]
+  IsClass = IsA[Class]
+
+  DescendsFrom = lambda do |possible_parent, klass|
+    IsClass[klass] && klass.ancestors.include?(possible_parent)
+  end.curry
 end

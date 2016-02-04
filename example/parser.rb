@@ -108,66 +108,76 @@ class ArithmeticGrammar
   end
 end
 
+IsTokenType = DescendsFrom[Token]
+IsOperatorType = DescendsFrom[ArithmeticOperator]
+
 RecognizeSingleTermForm = lambda do |grammar, production, tokens|
-  Recognize[grammar].(tokens, production) if production.is_a?(Symbol)
+  Recognize[grammar].(tokens, production)
 end.curry
 
 RecognizeSubexpression = lambda do |grammar, production, tokens|
-  if grammar.rules[production[0]].is_a?(Class) &&
-     grammar.rules[production[2]].is_a?(Class)
+  left_to_find = grammar.rules[production[0]]
+  middle_to_find = production[1]
+  right_to_find = grammar.rules[production[2]]
 
-    left_to_find = grammar.rules[production[0]]
-    middle_to_find = production[1]
-    right_to_find = grammar.rules[production[2]]
+  left,right = tokens.first, tokens.last
 
-    left,right = tokens.first, tokens.last
-
-    if left.is_a?(left_to_find) && right.is_a?(right_to_find)
-      Recognize[grammar].(tokens[1..-2], middle_to_find)
-    end
+  if left.is_a?(left_to_find) && right.is_a?(right_to_find)
+    Recognize[grammar].(tokens[1..-2], middle_to_find)
   end
 end.curry
 
 RecognizeBinaryOperation = lambda do |grammar, production, tokens|
-  if grammar.rules[production[1]].is_a?(Class)
-    left_to_find = production[0]
-    op_to_find = grammar.rules[production[1]] # we want the class
-    right_to_find = production[2]
+  left_to_find = production[0]
+  op_to_find = grammar.rules[production[1]] # we want the class
+  right_to_find = production[2]
 
-    i = tokens.rindex { |o| o.is_a?(op_to_find) }
-    if i && i > 0
+  i = tokens.rindex { |o| o.is_a?(op_to_find) }
+  if i && i > 0
 
-      found_op = tokens[i]
-      left,right = tokens.take(i), tokens.drop(i+1)
+    found_op = tokens[i]
+    left,right = tokens.take(i), tokens.drop(i+1)
 
-      left_operand = Recognize[grammar].(left, left_to_find)
-      right_operand = Recognize[grammar].(right, right_to_find)
+    left_operand = Recognize[grammar].(left, left_to_find)
+    right_operand = Recognize[grammar].(right, right_to_find)
 
-      if left_operand && right_operand
-        { found_op => { left: left_operand, right: right_operand }}
-      end
+    if left_operand && right_operand
+      { found_op => { left: left_operand, right: right_operand }}
     end
   end
 end.curry
 
-RecognizeKnownProductionForms = lambda do |grammar, production, tokens|
-  Orbit[[
-    RecognizeSingleTermForm,
-    RecognizeSubexpression,
-    RecognizeBinaryOperation
-  ]].([grammar, production, tokens])
+RelevantProductionForms = lambda do |grammar, production|
+  relevant_forms = []
+
+  if IsOperatorType[grammar.rules[production[1]]]
+    relevant_forms << RecognizeBinaryOperation
+  elsif IsTokenType[grammar.rules[production[0]]] && IsTokenType[grammar.rules[production[2]]]
+    relevant_forms << RecognizeSubexpression
+  elsif IsSymbol[production]
+    relevant_forms << RecognizeSingleTermForm
+  end
+
+  relevant_forms
+end
+
+AnalyzeProductionForms = lambda do |grammar, production, tokens|
+  Orbit[RelevantProductionForms[grammar,production]].(
+    [grammar, production, tokens]
+  )
 end.curry
+
+Analyze = lambda do |grammar, tokens|
+  lambda do |production|
+    AnalyzeProductionForms[grammar, production, tokens]
+  end
+end
 
 RecognizeRule = lambda do |grammar, rule, tokens|
   FirstTruthySubelement[
-    Map[->(production) {
-      RecognizeKnownProductionForms[grammar, production, tokens]
-    }].( grammar.rules[rule] )
+    Map[Analyze[grammar,tokens]].( grammar.rules[rule] )
   ]
 end
-
-Truthy = ->(x) { !!x }
-FirstTruthySubelement = Compose[[ Flatten, Filter[Truthy], First ]]
 
 Recognize = lambda do |grammar|
   lambda do |tokens, key|
@@ -228,23 +238,13 @@ Parse = lambda do |grammar|
   end
 end
 
-class Repl
-  def self.activate!
-    new.run
+while true
+  begin
+    print "   > "
+    puts Parse[ArithmeticGrammar.new].(gets.chomp)
+  rescue => ex
+    puts ex.message
+    puts ex.backtrace
+    "Sorry, but I could not parse '#{string}' (#{ex.message})"
   end
-
-  def run(grammar)
-    while true
-      begin
-        print "   > "
-        puts Parse[grammar].(string)
-      rescue => ex
-        puts ex.message
-        puts ex.backtrace
-        "Sorry, but I could not parse '#{string}' (#{ex.message})"
-      end
-    end
-  end
-end
-
-Repl.activate! if __FILE__==$0
+end if __FILE__ == $0
