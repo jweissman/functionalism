@@ -8,7 +8,7 @@ module Functionalism
   end
 
   TakeWhile = lambda do |p, a|
-    return [] if !AsProc[p][First[a]]
+    return [] if a.nil? || !AsProc[p][First[a]]
     Cons[TakeWhile[p, Rest[a]], First[a]]
   end
 

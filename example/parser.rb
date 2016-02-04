@@ -11,10 +11,6 @@ class Token
   def self.single_char?
     true
   end
-
-  def self.matches?(*)
-    raise "Override Token.matches? in subclass"
-  end
 end
 
 class NumericLiteral < Token
@@ -30,9 +26,6 @@ class NumericLiteral < Token
 end
 
 class ArithmeticOperator < Token
-  def apply(a,b)
-    raise "Override ArithmeticOperator#apply in subclass"
-  end
 end
 
 class AdditionOperator < ArithmeticOperator
@@ -89,70 +82,13 @@ end
 
 TokenList = [ NumericLiteral, AdditionOperator, SubtractionOperator, MultiplicationOperator, DivisionOperator, LeftParenthesis, RightParenthesis ]
 
-class Grammar
-  def rules; raise "Override Grammar#rules in #{self.class.name}" end
-  def start; raise "Override Grammar#start in #{self.class.name}" end
-
-  def recognize(tokens, key=start)
-    if rules[key].is_a?(Class)
-      fst = tokens.first
-      if fst.is_a?(rules[key]) && tokens.size == 1
-        return fst
-      else
-        return false
-      end
-    end
-
-    rules[key].each do |elements|
-      if elements.is_a?(Symbol) && (rec=recognize(tokens, elements))
-        return rec
-        # <left_operator> <middle_expression> <right_operator>
-      elsif rules[elements[0]].is_a?(Class) && rules[elements[2]].is_a?(Class)
-        left_to_find = rules[elements[0]]
-        middle_to_find = elements[1]
-        right_to_find = rules[elements[2]]
-
-        left,right = tokens.first, tokens.last
-        next unless left.is_a?(left_to_find) && right.is_a?(right_to_find)
-
-        middle_expr = recognize(tokens[1..-2], middle_to_find)
-        next unless middle_expr
-
-        p [ :recognize, key: key, tokens: tokens, elements: elements, left: left, right: right ]
-        return middle_expr
-
-      elsif rules[elements[1]].is_a?(Class)
-        left_to_find = elements[0]
-        op_to_find = rules[elements[1]] # we want the class
-        right_to_find = elements[2]
-
-        i = tokens.rindex { |o| o.is_a?(op_to_find) }
-        next unless i && i > 0
-
-        found_op = tokens[i]
-        left,right = tokens.take(i), tokens.drop(i+1)
-
-        left_operand = recognize(left, left_to_find)
-        right_operand = recognize(right, right_to_find)
-
-        next unless left_operand && right_operand
-
-        p [ :recognize, key: key, tokens: tokens, elements: elements, left: left_operand, right: right_operand ]
-        return { found_op => { left: left_operand, right: right_operand }}
-      end
-    end
-
-    return false
-  end
-end
-
 # This grammar implements the following arithmetic behaviors:
 #
 # expr   -> expr + term | expr - term | term
 # term   -> term * factor | term / factor | factor
 # factor -> digits | (expr)
 #
-class ArithmeticGrammar < Grammar
+class ArithmeticGrammar
   def start; :expr end
 
   def rules
@@ -161,33 +97,109 @@ class ArithmeticGrammar < Grammar
       :term   => [ %i[ term times factor ], %i[ term div factor ], :factor ],
       :factor => [ :digits, %i[ left_parens expr right_parens ]],
 
-      :plus   => AdditionOperator,
-      :minus  => SubtractionOperator,
-      :times  => MultiplicationOperator,
-      :div    => DivisionOperator,
-      :digits => NumericLiteral,
-      :left_parens => LeftParenthesis,
+      :plus         => AdditionOperator,
+      :minus        => SubtractionOperator,
+      :times        => MultiplicationOperator,
+      :div          => DivisionOperator,
+      :digits       => NumericLiteral,
+      :left_parens  => LeftParenthesis,
       :right_parens => RightParenthesis
     }
   end
 end
 
+RecognizeSingleTermForm = lambda do |grammar, production, tokens|
+  Recognize[grammar].(tokens, production) if production.is_a?(Symbol)
+end.curry
+
+RecognizeSubexpression = lambda do |grammar, production, tokens|
+  if grammar.rules[production[0]].is_a?(Class) &&
+     grammar.rules[production[2]].is_a?(Class)
+
+    left_to_find = grammar.rules[production[0]]
+    middle_to_find = production[1]
+    right_to_find = grammar.rules[production[2]]
+
+    left,right = tokens.first, tokens.last
+
+    if left.is_a?(left_to_find) && right.is_a?(right_to_find)
+      Recognize[grammar].(tokens[1..-2], middle_to_find)
+    end
+  end
+end.curry
+
+RecognizeBinaryOperation = lambda do |grammar, production, tokens|
+  if grammar.rules[production[1]].is_a?(Class)
+    left_to_find = production[0]
+    op_to_find = grammar.rules[production[1]] # we want the class
+    right_to_find = production[2]
+
+    i = tokens.rindex { |o| o.is_a?(op_to_find) }
+    if i && i > 0
+
+      found_op = tokens[i]
+      left,right = tokens.take(i), tokens.drop(i+1)
+
+      left_operand = Recognize[grammar].(left, left_to_find)
+      right_operand = Recognize[grammar].(right, right_to_find)
+
+      if left_operand && right_operand
+        { found_op => { left: left_operand, right: right_operand }}
+      end
+    end
+  end
+end.curry
+
+RecognizeKnownProductionForms = lambda do |grammar, production, tokens|
+  Orbit[[
+    RecognizeSingleTermForm,
+    RecognizeSubexpression,
+    RecognizeBinaryOperation
+  ]].([grammar, production, tokens])
+end.curry
+
+RecognizeRule = lambda do |grammar, rule, tokens|
+  FirstTruthySubelement[
+    Map[->(production) {
+      RecognizeKnownProductionForms[grammar, production, tokens]
+    }].( grammar.rules[rule] )
+  ]
+end
+
+Truthy = ->(x) { !!x }
+FirstTruthySubelement = Compose[[ Flatten, Filter[Truthy], First ]]
+
+Recognize = lambda do |grammar|
+  lambda do |tokens, key|
+    if grammar.rules[key].is_a?(Class)
+      fst = tokens.first
+      if fst.is_a?(grammar.rules[key]) && tokens.size == 1
+        fst
+      end
+    else
+      RecognizeRule[grammar,key,tokens]
+    end
+  end
+end
+
+TokenMatches = ->(token, ch) { token.matches?(ch) }.curry
+
 MatchOneToken = lambda do |token|
+  matches = TokenMatches[token]
   Proc.new("MatchOne[#{token}]") do |string|
     chars = string.chars
-    if token.matches?(chars.first)
+    if matches[chars.first]
       if token.single_char?
         x,*xs = *chars
         [ token.new(x), xs.join ]
       else
-        [ token.new(chars.take_while { |ch| token.matches?(ch) }.join),
-          chars.drop_while { |ch| token.matches?(ch) }.join ]
+        [ token.new(chars.take_while(&matches).join),
+          chars.drop_while(&matches).join ]
       end
     end
   end
 end
 
-Truthy = ->(x) { !!x }
 Matches = Orbit[Map[MatchOneToken][TokenList]]
 
 ConsumeOnce = lambda do |string|
@@ -212,23 +224,7 @@ end
 
 Parse = lambda do |grammar|
   Proc.new("Parse") do |string|
-    Synthesize.(grammar.recognize(Tokenize[string])).to_s
-  end
-end
-
-class Parser
-  def evaluate(string)
-    Parse[grammar].(string)
-  rescue => ex
-    puts ex.message
-    puts ex.backtrace
-
-    "Sorry, but I could not parse '#{string}' (#{ex.message})"
-  end
-
-  private
-  def grammar
-    @grammar ||= ArithmeticGrammar.new
+    Synthesize.(Recognize[grammar].(Tokenize[string], grammar.start)).to_s
   end
 end
 
@@ -237,17 +233,17 @@ class Repl
     new.run
   end
 
-  def run
+  def run(grammar)
     while true
-      print "   > "
-      expr = gets.chomp
-      result = parser.evaluate(expr)
-      puts "    #{result}"
+      begin
+        print "   > "
+        puts Parse[grammar].(string)
+      rescue => ex
+        puts ex.message
+        puts ex.backtrace
+        "Sorry, but I could not parse '#{string}' (#{ex.message})"
+      end
     end
-  end
-
-  def parser
-    @parser ||= Parser.new
   end
 end
 
