@@ -1,10 +1,11 @@
 require 'example_helper'
 
 describe 'Tokenize' do
+  let(:grammar) { ArithmeticGrammar.new }
   it 'should tokenize a string' do
     property_of { array(2) { i=integer; guard i>0; i } }.check do |(i,j)|
       expr = "#{i}+#{j}"
-      tokens = Tokenize.(expr)
+      tokens = Tokenize[grammar.token_list].(expr)
       concatted_tokens = tokens.map(&:inspect).join
       expect(concatted_tokens).to eq(expr)
     end
@@ -14,13 +15,13 @@ end
 describe 'Recognize' do
   let(:grammar) { ArithmeticGrammar.new }
   it 'should recognize literals' do
-    literal = Recognize[grammar].(Tokenize.("123"), grammar.start)
+    literal = Recognize[grammar].(Tokenize[grammar.token_list].("123"), grammar.start)
     expect(literal).to be_a(NumericLiteral)
     expect(literal.value).to eq('123')
   end
 
   it 'should recognize expressions' do
-    ast = Recognize[grammar].(Tokenize.("(1+3)"), grammar.start)
+    ast = Recognize[grammar].(Tokenize[grammar.token_list].("(1+3)"), grammar.start)
     op = ast.keys.first
 
     expect(op).to be_a(AdditionOperator)
@@ -34,7 +35,7 @@ end
 
 describe 'Parse' do
   let(:grammar) { ArithmeticGrammar.new }
-  subject(:parse) { Parse[grammar] }
+  subject(:parse) { grammar.method(:parse) }
 
   it 'should parse an expression' do
     expect(parse.("2+2")).to eq("4")
@@ -77,5 +78,9 @@ describe 'Parse' do
 
   it 'should parse complex expressions with nested parens' do
     expect(parse.("(1+2)*(4/(3-1))")).to eq("6")
+  end
+
+  it 'should recognize exponents' do
+    expect(parse.("1+2*3^2")).to eq("19") # 1+(2*(3^2)) = 1+(2*9)
   end
 end

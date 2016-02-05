@@ -64,18 +64,33 @@ module Functionalism
 
   Count = ->(p) { Compose2[Filter[p], Length] }
 
-  Index = ->(arr,i,n=0) {
-    if First[arr] == i
+  Index = ->(arr,p,n=0) {
+    if Length[arr]==0
+      nil
+    elsif AsProc[p][First[arr]]
       n
     else
-      Index[Rest[arr], i, n+1]
+      Index[Rest[arr],p,n+1]
     end
   }
+
+  ElementIndex = ->(arr,i) { Index[arr,->(x){ i==x }] }
+
+  RightIndex = ->(arr,p) {
+    if Length[arr] == 0
+      nil
+    elsif AsProc[p][Last[arr]]
+      Length[arr]-1
+    else
+      RightIndex[Initial[arr],p]
+    end
+  }
+
+  # RightmostElementIndex = ->(arr,i) { RightmostIndex[arr,->(x){i==x}] }
 
   Modulo2 = ->(a,b) { a % b }
 
   # Divide2 = :/
-  # Modulo2 = :%
   # Equals = ->(a,b) { a == b }
   # IsZero = ->(x) { Equals[0,x] }
   # IsEven = Modulo2|IsZero
@@ -91,8 +106,7 @@ module Functionalism
 
   Infinity = 1.0/0
 
-  Truthy = ->(x) { !!x }
-  FirstTruthySubelement = Compose[[ Flatten, Filter[Truthy], First ]]
+  IsTruthy = ->(x) { !!x }
 
   IsA = lambda do |klass, obj|
     obj.is_a?(klass)
@@ -104,4 +118,15 @@ module Functionalism
   DescendsFrom = lambda do |possible_parent, klass|
     IsClass[klass] && klass.ancestors.include?(possible_parent)
   end.curry
+
+  Wrap = ->(f,x=nil) { Proc.new("Wrap[#{f.to_s}]") { f.(x) } }
+
+  Print = ->(s) { print s }
+  Puts = ->(s) { Print[s+"\n"] }
+  Gets = ->(*){ gets }
+  Chomp = ->(s) { s.chomp }
+
+  Forever = ->(f,x=nil) { f.(x) while true }
+
+  Inner = Compose2[Initial,Rest]
 end

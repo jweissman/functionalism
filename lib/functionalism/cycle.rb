@@ -1,6 +1,6 @@
 module Functionalism
   CycleOne = lambda do |arr,x|
-    [x, arr[Modulo2[Successor[Index[arr,x]], Length[arr]]]]
+    [x, arr[Modulo2[Successor[ElementIndex[arr,x]], Length[arr]]]]
   end.curry
 
   Cycle = lambda do |arr|

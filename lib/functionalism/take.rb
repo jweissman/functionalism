@@ -8,7 +8,7 @@ module Functionalism
   end
 
   TakeWhile = lambda do |p, a|
-    return [] if a.nil? || !AsProc[p][First[a]]
+    return [] if a.nil? || First[a].nil? || !AsProc[p][First[a]]
     Cons[TakeWhile[p, Rest[a]], First[a]]
   end
 
@@ -17,14 +17,13 @@ module Functionalism
     Drop[n-1, Rest[a]]
   end
 
-  DropWhile = lambda do |p|
-    lambda do |arr|
-      a,as = First[arr], Rest[arr]
-      if !AsProc[p][a]
-        Cons[as,a]
-      else
-        DropWhile[p][as]
-      end
+  DropWhile = lambda do |p,arr|
+    a,as = First[arr], Rest[arr]
+    return [] if a.nil?
+    if !AsProc[p][a]
+      Cons[as,a]
+    else
+      DropWhile[p][as]
     end
-  end
+  end.curry
 end

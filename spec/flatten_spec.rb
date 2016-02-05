@@ -7,4 +7,8 @@ describe Flatten do
 
     expect(Flatten.([[[1],nil,nil],[nil],[nil,nil]])).to eq([[1],nil,nil,nil,nil,nil])
   end
+
+  it 'should have a synonym (Join) for joining strings togethers' do
+    expect(Join.(%w[ a b c d ])).to eq('abcd')
+  end
 end
